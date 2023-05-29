@@ -27,4 +27,8 @@ app.listen(PORT, () => console.log(`The Server Is Running On: http://localhost:$
 
 /* Start Handle The Routes */
 
+const   usersRouter = require("./routes/users.router");
+
+app.use("/users", usersRouter);
+
 /* End Handle The Routes */
