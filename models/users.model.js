@@ -37,7 +37,7 @@ async function createNewUser(userInfo) {
         let user = await userModel.findOne({ email: userInfo.email });
         if (user) {
             await mongoose.disconnect();
-            return "Sorry, Can't Create User Because it is Exist !!!";
+            return "عذراً لا يمكن إنشاء الحساب لأنه موجود مسبقاً !!";
         } else {
             // Encrypting The Password
             let encrypted_password = await bcrypt.hash(userInfo.password, 10);
@@ -46,7 +46,7 @@ async function createNewUser(userInfo) {
                 firstAndLastName: userInfo.firstAndLastName,
                 email: userInfo.email,
                 mobilePhone: userInfo.mobilePhone,
-                password: userInfo.password,
+                password: encrypted_password,
                 gender: userInfo.gender,
                 birthday: userInfo.birthday,
                 city: userInfo.city,
@@ -56,13 +56,13 @@ async function createNewUser(userInfo) {
             await newUser.save();
             // Disconnect In DB
             await mongoose.disconnect();
-            return "Ok !!, Create New User Is Successfuly !!";
+            return "تم بنجاح إنشاء الحساب";
         }
     }
     catch (err) {
         // Disconnect In DB
         await mongoose.disconnect();
-        throw Error("Sorry, Something Went Wrong !!");
+        throw Error("عذراً حدث خطأ ، الرجاء إعادة العملية");
     }
 }
 
