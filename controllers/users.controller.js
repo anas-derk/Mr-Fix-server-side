@@ -70,8 +70,25 @@ function getUserInfo(req, res) {
     }
 }
 
+function putProfile(req, res) {
+    // Get User Id
+    let userId = req.params.userId,
+        newUserData = req.body;
+    // Check If User Id Is Exist
+    if (!userId) res.status(500).json("Sorry, Please Send User Id !!");
+    else {
+        // Get User Info Because User Id Is Exist
+        const { updateProfile } = require("../models/users.model");
+        updateProfile(userId, newUserData).then((result) => {
+            res.json(result);
+        })
+        .catch((err) => res.json(err));
+    }
+}
+
 module.exports = {
     createNewUser,
     login,
     getUserInfo,
+    putProfile,
 }

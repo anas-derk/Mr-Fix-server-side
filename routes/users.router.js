@@ -8,4 +8,6 @@ usersRouter.get("/login", usersController.login);
 
 usersRouter.get("/user-info/:userId", usersController.getUserInfo);
 
+usersRouter.put("/update-user-info/:userId", usersController.putProfile);
+
 module.exports = usersRouter;

@@ -34,14 +34,16 @@ async function createNewUser(userInfo) {
         // Connect To DB
         await mongoose.connect(DB_URL);
         // Check If Email Is Exist
-        let user = await userModel.findOne({ $or: [
-            {
-                email: userInfo.email,
-            },
-            {
-                mobilePhone: userInfo.mobilePhone,
-            }
-        ]});
+        let user = await userModel.findOne({
+            $or: [
+                {
+                    email: userInfo.email,
+                },
+                {
+                    mobilePhone: userInfo.mobilePhone,
+                }
+            ]
+        });
         if (user) {
             await mongoose.disconnect();
             return "عذراً لا يمكن إنشاء الحساب لأنه موجود مسبقاً !!";
@@ -106,7 +108,43 @@ async function getUserInfo(userId) {
         let user = await userModel.findById(userId);
         await mongoose.disconnect();
         if (user) return user;
-        return "Sorry, The User Is Not Exist !!, Please Enter Another Email ..";
+        return "عذراً ، المستخدم غير موجود";
+    } catch (err) {
+        // Disconnect In DB
+        await mongoose.disconnect();
+        throw Error("Sorry, Error In Process, Please Repeated This Process !!");
+    }
+}
+
+async function updateProfile(userId, newUserData) {
+    try {
+        // Connect To DB
+        await mongoose.connect(DB_URL);
+        // Check If User Is Exist
+        let user = await userModel.findOne({ $or: [
+            {
+                email: newUserData.email,
+            },
+            {
+                mobilePhone: newUserData.mobilePhone,
+            }
+        ]});
+        if (user) {
+            await mongoose.disconnect();
+            return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !! !!";
+        } else {
+            await userModel.updateOne({ _id: userId }, {
+                firstAndLastName: newUserData.firstAndLastName,
+                email: newUserData.email.toLowerCase(),
+                mobilePhone: newUserData.mobilePhone,
+                password: newUserData.password,
+                gender: newUserData.gender,
+                birthday: newUserData.birthday,
+                city: newUserData.city,
+                address: newUserData.address,
+            });
+            await mongoose.disconnect();
+        }
     } catch (err) {
         // Disconnect In DB
         await mongoose.disconnect();
@@ -118,4 +156,5 @@ module.exports = {
     createNewUser,
     login,
     getUserInfo,
+    updateProfile,
 }
