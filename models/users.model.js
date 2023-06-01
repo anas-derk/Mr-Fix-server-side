@@ -120,24 +120,81 @@ async function updateProfile(userId, newUserData) {
     try {
         // Connect To DB
         await mongoose.connect(DB_URL);
-        // Check If User Is Exist
-        let user = await userModel.findOne({ $or: [
-            {
-                email: newUserData.email,
-            },
-            {
-                mobilePhone: newUserData.mobilePhone,
+        let user;
+        if (typeof newUserData.email !== "undefined" && typeof newUserData.mobilePhone == "undefined") {
+            user = await userModel.findOne({ email: newUserData.email });
+            // Check If User Is Exist
+            if (user) {
+                await mongoose.disconnect();
+                return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!";
+            } else {
+                let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                await userModel.updateOne({ _id: userId }, {
+                    firstAndLastName: newUserData.firstAndLastName,
+                    email: newUserData.email.toLowerCase(),
+                    password: newEncryptedPassword,
+                    gender: newUserData.gender,
+                    birthday: newUserData.birthday,
+                    city: newUserData.city,
+                    address: newUserData.address,
+                });
+                await mongoose.disconnect();
             }
-        ]});
-        if (user) {
-            await mongoose.disconnect();
-            return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !! !!";
-        } else {
+        }
+        else if (typeof newUserData.email == "undefined" && typeof newUserData.mobilePhone !== "undefined") {
+            user = await userModel.findOne({ mobilePhone: newUserData.mobilePhone });
+            // Check If User Is Exist
+            if (user) {
+                await mongoose.disconnect();
+                return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!";
+            } else {
+                let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                await userModel.updateOne({ _id: userId }, {
+                    firstAndLastName: newUserData.firstAndLastName,
+                    mobilePhone: newUserData.mobilePhone,
+                    password: newEncryptedPassword,
+                    gender: newUserData.gender,
+                    birthday: newUserData.birthday,
+                    city: newUserData.city,
+                    address: newUserData.address,
+                });
+                await mongoose.disconnect();
+            }
+        }
+        else if (typeof newUserData.email !== "undefined" && typeof newUserData.mobilePhone !== "undefined") {
+            user = await userModel.findOne({
+                $or: [
+                    {
+                        email: newUserData.email
+                    },
+                    {
+                        mobilePhone: newUserData.mobilePhone,
+                    }
+                ]
+            });
+            if (user) {
+                await mongoose.disconnect();
+                return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!";
+            } else {
+                let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                await userModel.updateOne({ _id: userId }, {
+                    firstAndLastName: newUserData.firstAndLastName,
+                    email: newUserData.email,
+                    mobilePhone: newUserData.mobilePhone,
+                    password: newEncryptedPassword,
+                    gender: newUserData.gender,
+                    birthday: newUserData.birthday,
+                    city: newUserData.city,
+                    address: newUserData.address,
+                });
+                await mongoose.disconnect();
+            }
+        }
+        else {
+            let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
             await userModel.updateOne({ _id: userId }, {
                 firstAndLastName: newUserData.firstAndLastName,
-                email: newUserData.email.toLowerCase(),
-                mobilePhone: newUserData.mobilePhone,
-                password: newUserData.password,
+                password: newEncryptedPassword,
                 gender: newUserData.gender,
                 birthday: newUserData.birthday,
                 city: newUserData.city,
@@ -145,7 +202,8 @@ async function updateProfile(userId, newUserData) {
             });
             await mongoose.disconnect();
         }
-    } catch (err) {
+    }
+    catch (err) {
         // Disconnect In DB
         await mongoose.disconnect();
         throw Error("Sorry, Error In Process, Please Repeated This Process !!");

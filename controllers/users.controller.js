@@ -74,6 +74,7 @@ function putProfile(req, res) {
     // Get User Id
     let userId = req.params.userId,
         newUserData = req.body;
+    console.log(newUserData);
     // Check If User Id Is Exist
     if (!userId) res.status(500).json("Sorry, Please Send User Id !!");
     else {
