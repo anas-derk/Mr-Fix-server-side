@@ -75,28 +75,28 @@ async function createNewUser(userInfo) {
     }
 }
 
-async function login(email, password) {
+async function login(text, password) {
     try {
         // Connect To DB
         await mongoose.connect(DB_URL);
         // Check If Email Is Exist
-        let user = await userModel.findOne({ email });
+        let user = await userModel.findOne({ email: text });
         if (user) {
             // Check From Password
             let isTruePassword = await bcrypt.compare(password, user.password);
             await mongoose.disconnect();
-            if (isTruePassword) return user;
-            else return "Sorry, Email Or Password Incorrect !!";
+            if (isTruePassword) return user._id;
+            return "عذراً ، الإيميل أو رقم الهاتف خاطئ أو كلمة السر خاطئة";
         }
         else {
             mongoose.disconnect();
-            return "Sorry, Email Or Password Incorrect !!";
+            return "عذراً ، الإيميل أو رقم الهاتف خاطئ أو كلمة السر خاطئة";
         }
     }
     catch (err) {
         // Disconnect In DB
         await mongoose.disconnect();
-        throw Error("Sorry, Error In Process, Please Repeated This Process !!");
+        throw Error("عذراً يوجد مشكلة ، الرجاء إعادة المحاولة !!");
     }
 }
 

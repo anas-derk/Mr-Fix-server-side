@@ -34,7 +34,6 @@ function createNewUser(req, res) {
 function login(req, res) {
     let text = req.query.text,
         password = req.query.password;
-    console.log(text, password);
     // Start Handle Email Value To Check It Before Save In DB
     const { isEmail } = require("../global/functions");
     // Check If Email And Password Are Exist
