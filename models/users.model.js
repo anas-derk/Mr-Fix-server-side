@@ -75,6 +75,22 @@ async function createNewUser(userInfo) {
     }
 }
 
+async function isUserAccountExist(email) {
+    try {
+        // Connect To DB
+        await mongoose.connect(DB_URL);
+        // Check If User Is Exist
+        let user = await userModel.findOne({ email });
+        await mongoose.disconnect();
+        if (user) return user._id;
+        return false;
+    } catch (err) {
+        // Disconnect In DB
+        await mongoose.disconnect();
+        throw Error("عذراً يوجد مشكلة ، الرجاء إعادة المحاولة !!");
+    }
+}
+
 async function login(text, password) {
     try {
         // Connect To DB
@@ -215,4 +231,5 @@ module.exports = {
     login,
     getUserInfo,
     updateProfile,
+    isUserAccountExist,
 }

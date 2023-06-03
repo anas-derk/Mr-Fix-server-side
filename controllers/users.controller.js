@@ -20,7 +20,7 @@ function createNewUser(req, res) {
             createNewUser(req.body).then((msg) => {
                 res.json(msg);
             })
-            .catch((err) => res.json(err));
+                .catch((err) => res.json(err));
         }
         else {
             // Return Error Msg If Email Is Not Valid
@@ -28,6 +28,47 @@ function createNewUser(req, res) {
         }
     } else {
         res.status(500).json("Error, Please Enter Email And Password Or Rest Input !!");
+    }
+}
+
+function postForgetPassword(req, res) {
+    const email = req.query.email;
+    if (email) {
+        // Start Handle Email Value To Check It Before Save In DB
+        const { isEmail } = require("../global/functions");
+        // Check If Email Valid
+        if (isEmail(email)) {
+            const { isUserAccountExist } = require("../models/users.model");
+            // Check If User Is Exist
+            isUserAccountExist(email).then((userId) => {
+                // If User Is Exist => Send Code To This Email
+                if (userId) {
+                    // إذا كان الحساب موجوداً نقوم بإرسال الإيميل
+                    const { sendCodeToUserEmail } = require("../global/functions");
+                    sendCodeToUserEmail(email)
+                        .then(generatedCode => {
+                            // إرجاع البيانات المطلوبة لعملية إعادة ضبط كلمة السر
+                            res.json(
+                                {
+                                    userId,
+                                    code: generatedCode,
+                                }
+                            );
+                        })
+                        .catch(err => res.json(err));
+                } else {
+                    res.json("عذراً البريد الالكتروني الذي أدخلته غير موجود !!");
+                }
+            })
+                .catch((err) => res.json(err));
+        }
+        else {
+            // Return Error Msg If Email Is Not Valid
+            res.status(500).json("عذراً ، الإيميل الذي أدخلته غير صالح !!!");
+        }
+    }
+    else {
+        res.status(500).json("الرجاء إرسال الإيميل المطلوب لاستعادة كلمة السر الخاصة به");
     }
 }
 
@@ -65,7 +106,7 @@ function getUserInfo(req, res) {
         getUserInfo(userId).then((result) => {
             res.json(result);
         })
-        .catch((err) => res.json(err));
+            .catch((err) => res.json(err));
     }
 }
 
@@ -82,7 +123,7 @@ function putProfile(req, res) {
         updateProfile(userId, newUserData).then((result) => {
             res.json(result);
         })
-        .catch((err) => res.json(err));
+            .catch((err) => res.json(err));
     }
 }
 
@@ -91,4 +132,5 @@ module.exports = {
     login,
     getUserInfo,
     putProfile,
+    postForgetPassword,
 }
