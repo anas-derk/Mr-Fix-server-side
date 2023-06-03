@@ -2,6 +2,10 @@ function isEmail(email) {
     return email.match(/[^\s@]+@[^\s@]+\.[^\s@]+/);
 }
 
+function isNumber(input) {
+    return isNaN(input.value);
+}
+
 function transporterObj() {
     const nodemailer = require('nodemailer');
     // إنشاء ناقل بيانات لسيرفر SMTP مع إعداده 
@@ -42,4 +46,5 @@ function sendCodeToUserEmail(email) {
 module.exports = {
     isEmail,
     sendCodeToUserEmail,
+    isNumber,
 }

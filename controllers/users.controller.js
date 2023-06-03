@@ -76,11 +76,11 @@ function login(req, res) {
     let text = req.query.text,
         password = req.query.password;
     // Start Handle Email Value To Check It Before Save In DB
-    const { isEmail } = require("../global/functions");
+    const { isEmail, isNumber } = require("../global/functions");
     // Check If Email And Password Are Exist
     if (text.length > 0 && password.length > 0) {
-        // Check If Email Valid
-        if (isEmail(text)) {
+        // Check If Email Valid Or Mobile Phone Valid
+        if (isEmail(text) || isNumber(text)) {
             const { login } = require("../models/users.model");
             login(text, password).then((result) => {
                 res.json(result);

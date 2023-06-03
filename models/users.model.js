@@ -96,7 +96,14 @@ async function login(text, password) {
         // Connect To DB
         await mongoose.connect(DB_URL);
         // Check If Email Is Exist
-        let user = await userModel.findOne({ email: text });
+        let user = await userModel.findOne({ $or: [
+            {
+                email: text
+            },
+            {
+                mobilePhone: text
+            }
+        ]});
         if (user) {
             // Check From Password
             let isTruePassword = await bcrypt.compare(password, user.password);
