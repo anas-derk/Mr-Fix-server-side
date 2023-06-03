@@ -2,8 +2,8 @@ const requestsRouter = require("express").Router();
 
 const requestsController = require("../controllers/requests.controller");
 
-requestsRouter.post("/create-new-request", requestsController.postServiceRequest);
+const upload = require("../global/multer.config");
 
-// requestsRouter.get("/login", usersController.login);
+requestsRouter.post("/create-new-request", upload.any(), requestsController.postServiceRequest);
 
 module.exports = requestsRouter;

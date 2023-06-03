@@ -10,11 +10,18 @@ const requestSchema = mongoose.Schema({
     newAddress: String,
     imageOfTheBrokenTool: String,
     pictureOfTheVacationSpot: String,
-    preferredDateOfVisit: String,
-    preferredTimeOfVisit: String,
+    preferredDateOfVisit: {
+        type: String,
+        default: "فوراً",
+    },
+    preferredTimeOfVisit: {
+        type: String,
+        default: "فوراً",
+    },
     electricityTimes: String,
     isAlternativeEnergyExist: String,
     userId: String,
+    files: Array,
 });
 
 // Create Request Model From Request Schema
