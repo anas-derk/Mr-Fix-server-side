@@ -96,14 +96,16 @@ async function login(text, password) {
         // Connect To DB
         await mongoose.connect(DB_URL);
         // Check If Email Is Exist
-        let user = await userModel.findOne({ $or: [
-            {
-                email: text
-            },
-            {
-                mobilePhone: text
-            }
-        ]});
+        let user = await userModel.findOne({
+            $or: [
+                {
+                    email: text
+                },
+                {
+                    mobilePhone: text
+                }
+            ]
+        });
         if (user) {
             // Check From Password
             let isTruePassword = await bcrypt.compare(password, user.password);
@@ -139,12 +141,13 @@ async function getUserInfo(userId) {
     }
 }
 
-async function updateProfile(userId, newUserData) {
+async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobilePhone) {
     try {
         // Connect To DB
         await mongoose.connect(DB_URL);
         let user;
-        if (typeof newUserData.email !== "undefined" && typeof newUserData.mobilePhone == "undefined") {
+        if (isSameOfEmail === "no" && isSameOfMobilePhone == "yes") {
+            console.log("aaa");
             user = await userModel.findOne({ email: newUserData.email });
             // Check If User Is Exist
             if (user) {
@@ -163,8 +166,7 @@ async function updateProfile(userId, newUserData) {
                 });
                 await mongoose.disconnect();
             }
-        }
-        else if (typeof newUserData.email == "undefined" && typeof newUserData.mobilePhone !== "undefined") {
+        } else if (isSameOfEmail == "yes" && isSameOfMobilePhone == "no") {
             user = await userModel.findOne({ mobilePhone: newUserData.mobilePhone });
             // Check If User Is Exist
             if (user) {
@@ -183,8 +185,7 @@ async function updateProfile(userId, newUserData) {
                 });
                 await mongoose.disconnect();
             }
-        }
-        else if (typeof newUserData.email !== "undefined" && typeof newUserData.mobilePhone !== "undefined") {
+        } else if (isSameOfEmail == "no" && isSameOfMobilePhone == "no") {
             user = await userModel.findOne({
                 $or: [
                     {
@@ -212,8 +213,7 @@ async function updateProfile(userId, newUserData) {
                 });
                 await mongoose.disconnect();
             }
-        }
-        else {
+        } else {
             let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
             await userModel.updateOne({ _id: userId }, {
                 firstAndLastName: newUserData.firstAndLastName,
@@ -240,7 +240,7 @@ async function resetUserPassword(userId, newPassword) {
         let newEncryptedPassword = await bcrypt.hash(newPassword, 10);
         await userModel.updateOne({ _id: userId }, { password: newEncryptedPassword });
         return "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!";
-    } catch(err) {
+    } catch (err) {
         // Disconnect In DB
         await mongoose.disconnect();
         throw Error("عذراً يوجد مشكلة ، الرجاء إعادة المحاولة !!");

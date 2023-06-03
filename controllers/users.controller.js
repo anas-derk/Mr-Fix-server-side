@@ -10,11 +10,24 @@ function createNewUser(req, res) {
     // Start Handle Email Value To Check It Before Save In DB
     const { isEmail } = require("../global/functions");
     // Check If Email, Password And Name Are Exist
-    if (firstAndLastName.length > 0 && email.length > 0 && mobilePhone.length > 0
+    if (firstAndLastName.length > 0 && mobilePhone.length > 0
         && password.length > 0 && gender.length > 0 && birthday.length > 0
         && city.length > 0 && address.length > 0) {
-        // Check If Email Valid
-        if (isEmail(email)) {
+        if (email.length > 0) {
+            // Check If Email Valid
+            if (isEmail(email)) {
+                const { createNewUser } = require("../models/users.model");
+                // Create New User
+                createNewUser(req.body).then((msg) => {
+                    res.json(msg);
+                })
+                    .catch((err) => res.json(err));
+            }
+            else {
+                // Return Error Msg If Email Is Not Valid
+                res.status(500).json("Error, This Is Not Email Valid !!");
+            }
+        } else {
             const { createNewUser } = require("../models/users.model");
             // Create New User
             createNewUser(req.body).then((msg) => {
@@ -22,12 +35,6 @@ function createNewUser(req, res) {
             })
                 .catch((err) => res.json(err));
         }
-        else {
-            // Return Error Msg If Email Is Not Valid
-            res.status(500).json("Error, This Is Not Email Valid !!");
-        }
-    } else {
-        res.status(500).json("Error, Please Enter Email And Password Or Rest Input !!");
     }
 }
 
@@ -113,17 +120,18 @@ function getUserInfo(req, res) {
 function putProfile(req, res) {
     // Get User Id
     let userId = req.params.userId,
-        newUserData = req.body;
-    console.log(newUserData);
+        newUserData = req.body,
+        isSameOfEmail = req.query.isSameOfEmail;
+        isSameOfMobilePhone = req.query.isSameOfMobilePhone;
     // Check If User Id Is Exist
     if (!userId) res.status(500).json("Sorry, Please Send User Id !!");
     else {
         // Get User Info Because User Id Is Exist
         const { updateProfile } = require("../models/users.model");
-        updateProfile(userId, newUserData).then((result) => {
+        updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobilePhone).then((result) => {
             res.json(result);
         })
-            .catch((err) => res.json(err));
+        .catch((err) => res.json(err));
     }
 }
 
