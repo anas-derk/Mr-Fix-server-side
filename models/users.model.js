@@ -51,7 +51,6 @@ async function createNewUser(userInfo) {
             });
         }
         if (user) {
-            console.log(user)
             await mongoose.disconnect();
             return "عذراً لا يمكن إنشاء الحساب لأنه موجود مسبقاً !!";
         } else {
