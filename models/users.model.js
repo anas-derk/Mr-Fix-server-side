@@ -33,18 +33,25 @@ async function createNewUser(userInfo) {
     try {
         // Connect To DB
         await mongoose.connect(DB_URL);
-        // Check If Email Is Exist
-        let user = await userModel.findOne({
-            $or: [
-                {
-                    email: userInfo.email,
-                },
-                {
-                    mobilePhone: userInfo.mobilePhone,
-                }
-            ]
-        });
+        let user;
+        if (userInfo.email.length === 0) {
+            // Check If Mobile Phone It Exist
+            user = await userModel.findOne({ mobilePhone: userInfo.mobilePhone });
+        } else {
+            // Check If Email Or Mobile Phone It Exist
+            user = await userModel.findOne({
+                $or: [
+                    {
+                        email: userInfo.email,
+                    },
+                    {
+                        mobilePhone: userInfo.mobilePhone,
+                    }
+                ]
+            });
+        }
         if (user) {
+            console.log(user)
             await mongoose.disconnect();
             return "عذراً لا يمكن إنشاء الحساب لأنه موجود مسبقاً !!";
         } else {

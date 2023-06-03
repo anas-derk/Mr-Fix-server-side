@@ -12,8 +12,8 @@ function transporterObj() {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: "anas.derk2020@gmail.com",
-            pass: "nxlitlpsmdmuffzb",
+            user: "mrfix.help@gmail.com",
+            pass: "suwtluglgrxpumsb",
         }
     });
     return transporter;
@@ -27,7 +27,7 @@ function sendCodeToUserEmail(email) {
     let generatedCode = generator.generateCodes("###**#");
     // إعداد الرسالة قبل إرسالها
     const mailConfigurations = {
-        from: "anas.derk2020@gmail.com",
+        from: "mrfix.help@gmail.com",
         to: email,
         subject: "Verification User Account Is Exist ...",
         text: `Your Code Is: ${generatedCode}`,
