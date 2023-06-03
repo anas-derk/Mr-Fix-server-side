@@ -128,7 +128,7 @@ async function getUserInfo(userId) {
     } catch (err) {
         // Disconnect In DB
         await mongoose.disconnect();
-        throw Error("Sorry, Error In Process, Please Repeated This Process !!");
+        throw Error("عذراً يوجد مشكلة ، الرجاء إعادة المحاولة !!");
     }
 }
 
@@ -226,10 +226,25 @@ async function updateProfile(userId, newUserData) {
     }
 }
 
+// دالة لإعادة تعيين كلمة السر
+async function resetUserPassword(userId, newPassword) {
+    try {
+        await mongoose.connect(DB_URL);
+        let newEncryptedPassword = await bcrypt.hash(newPassword, 10);
+        await userModel.updateOne({ _id: userId }, { password: newEncryptedPassword });
+        return "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!";
+    } catch(err) {
+        // Disconnect In DB
+        await mongoose.disconnect();
+        throw Error("عذراً يوجد مشكلة ، الرجاء إعادة المحاولة !!");
+    }
+}
+
 module.exports = {
     createNewUser,
     login,
     getUserInfo,
     updateProfile,
     isUserAccountExist,
+    resetUserPassword,
 }

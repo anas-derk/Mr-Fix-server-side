@@ -31,7 +31,7 @@ function createNewUser(req, res) {
     }
 }
 
-function postForgetPassword(req, res) {
+function getForgetPassword(req, res) {
     const email = req.query.email;
     if (email) {
         // Start Handle Email Value To Check It Before Save In DB
@@ -51,7 +51,7 @@ function postForgetPassword(req, res) {
                             res.json(
                                 {
                                     userId,
-                                    code: generatedCode,
+                                    code: generatedCode[0],
                                 }
                             );
                         })
@@ -127,10 +127,27 @@ function putProfile(req, res) {
     }
 }
 
+function putResetPassword(req, res) {
+    // Get User Id
+    let userId = req.params.userId;
+    // Check If User Id Is Exist
+    if (!userId) res.status(500).json("عذراً الرجاءإرسال معرّف مستخدم !!");
+    else {
+        // Get Reset User Password Because User Id Is Exist
+        let newPassword = req.query.newPassword;
+        const { resetUserPassword } = require("../models/users.model");
+        resetUserPassword(userId, newPassword).then((result) => {
+            res.json(result);
+        })
+            .catch((err) => res.json(err));
+    }
+}
+
 module.exports = {
     createNewUser,
     login,
     getUserInfo,
     putProfile,
-    postForgetPassword,
+    getForgetPassword,
+    putResetPassword,
 }

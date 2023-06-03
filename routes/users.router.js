@@ -8,7 +8,9 @@ usersRouter.get("/login", usersController.login);
 
 usersRouter.get("/user-info/:userId", usersController.getUserInfo);
 
-usersRouter.get("/forget-password", usersController.postForgetPassword);
+usersRouter.get("/forget-password", usersController.getForgetPassword);
+
+usersRouter.put("/reset-password/:userId", usersController.putResetPassword);
 
 usersRouter.put("/update-user-info/:userId", usersController.putProfile);
 
