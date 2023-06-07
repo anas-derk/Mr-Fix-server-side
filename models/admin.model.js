@@ -57,7 +57,31 @@ async function getAdminInfo(adminId) {
     }
 }
 
+async function resetPasswordForUserFromAdmin(mobilePhone) {
+    try {
+        // Connect To DB
+        await mongoose.connect(DB_URL);
+        // Check If User Is Exist
+        let user = await mongoose.models.user.findOne({ mobilePhone });
+        if (!user) {
+            await mongoose.disconnect();
+            return "عذراً ، الحساب غير موجود";
+        } else {
+            let newEncryptedPassword = await bcrypt.hash(mobilePhone, 10);
+            await mongoose.models.user.updateOne({ mobilePhone }, {
+                password: newEncryptedPassword,
+            });
+            return "تهانينا ، لقد تمّ إعادة تعيين كلمة السر لتصبح على نفس رقم الموبايل";
+        }
+    } catch (err) {
+        // Disconnect In DB
+        await mongoose.disconnect();
+        throw Error("عذراً توجد مشكلة ، الرجاء إعادة العملية !!!");
+    }
+}
+
 module.exports = {
     adminLogin,
     getAdminInfo,
+    resetPasswordForUserFromAdmin,
 }

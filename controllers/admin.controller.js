@@ -35,7 +35,23 @@ function getAdminInfo(req, res) {
     }
 }
 
+function putResetPassword(req, res) {
+    let mobilePhone = req.params.mobilePhone;
+    console.log(mobilePhone, typeof mobilePhone);
+    if (!mobilePhone) {
+        res.json("الرجاء إرسال رقم موبايل !!!");
+    } else {
+        // Get User Info Because User Id Is Exist
+        const { resetPasswordForUserFromAdmin } = require("../models/admin.model");
+        resetPasswordForUserFromAdmin(mobilePhone).then((result) => {
+            res.json(result);
+        })
+        .catch((err) => res.json(err));
+    }
+}
+
 module.exports = {
     getAdminLogin,
     getAdminInfo,
+    putResetPassword,
 }

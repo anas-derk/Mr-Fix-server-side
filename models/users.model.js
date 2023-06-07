@@ -153,7 +153,6 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
         await mongoose.connect(DB_URL);
         let user;
         if (isSameOfEmail === "no" && isSameOfMobilePhone == "yes") {
-            console.log("aaa");
             user = await userModel.findOne({ email: newUserData.email });
             // Check If User Is Exist
             if (user) {
