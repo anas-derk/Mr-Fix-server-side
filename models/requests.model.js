@@ -20,7 +20,7 @@ const requestSchema = mongoose.Schema({
     },
     electricityTimes: String,
     isAlternativeEnergyExist: String,
-    request_post_date: {
+    requestPostDate: {
         type: Date,
         default: Date.now(),
     },
@@ -81,7 +81,7 @@ async function getAllRequests() {
 async function getAllRequests() {
     try {
         await mongoose.connect(DB_URL);
-        let requests = await requestModel.find({}).sort({ request_post_date: -1 });
+        let requests = await requestModel.find({}).sort({ requestPostDate: -1 });
         if (requests) {
             await mongoose.disconnect();
             return requests;
