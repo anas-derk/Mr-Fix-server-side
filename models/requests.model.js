@@ -20,6 +20,10 @@ const requestSchema = mongoose.Schema({
     },
     electricityTimes: String,
     isAlternativeEnergyExist: String,
+    request_post_date: {
+        type: Date,
+        default: Date.now(),
+    },
     userId: String,
     files: Array,
 });
@@ -74,7 +78,26 @@ async function getAllRequests() {
     }
 }
 
+async function getAllRequests() {
+    try {
+        await mongoose.connect(DB_URL);
+        let requests = await requestModel.find({}).sort({ request_post_date: -1 });
+        if (requests) {
+            await mongoose.disconnect();
+            return requests;
+        } else {
+            await mongoose.disconnect();
+            return "عذراً لا توجد أي طلبات حالياً";
+        }
+    } catch (err) {
+        // Disconnect In DB
+        await mongoose.disconnect();
+        throw Error("عذراً يوجد مشكلة ، الرجاء إعادة المحاولة !!");
+    }
+}
+
 module.exports = {
     createNewRequest,
+    getAllRequests,
     getAllRequests,
 }

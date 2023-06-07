@@ -15,6 +15,14 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
+/* Start direct the browser to statics files path */
+
+const path = require("path");
+
+app.use("/assets", express.static(path.join(__dirname, "assets")));
+
+/* End direct the browser to statics files path */
+
 /* End Config The Server */
 
 /* Start Running The Server */

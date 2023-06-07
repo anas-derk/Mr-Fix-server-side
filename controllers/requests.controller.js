@@ -16,9 +16,20 @@ function postServiceRequest(req, res) {
         for (let file of requestImages.files) {
             unlinkSync(file.path);
         }
+        res.json(err);
     });
+}
+
+function getAllRequests(req, res) {
+    // Get User Info Because User Id Is Exist
+    const { getAllRequests } = require("../models/requests.model");
+    getAllRequests().then((result) => {
+        res.json(result);
+    })
+    .catch((err) => res.json(err));
 }
 
 module.exports = {
     postServiceRequest,
+    getAllRequests,
 }
