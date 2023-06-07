@@ -18,7 +18,7 @@ const admin_user_model = mongoose.model("admin", admin_user_schema);
 const bcrypt = require("bcryptjs");
 
 let userInfo = {
-    email: "mrfix.admin@gmail.com",
+    email: "mrfix.help@gmail.com",
     password: "2@mr$FIX023",
 };
 
