@@ -259,4 +259,5 @@ module.exports = {
     updateProfile,
     isUserAccountExist,
     resetUserPassword,
+    userModel,
 }

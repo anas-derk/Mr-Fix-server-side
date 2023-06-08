@@ -6,6 +6,9 @@ adminRouter.get("/login", adminController.getAdminLogin);
 
 adminRouter.get("/admin-info/:adminId", adminController.getAdminInfo);
 
+adminRouter.get("/requests/:requestId/users/:userId", adminController.getRequestSenderInfo);
+
 adminRouter.put("/reset-password/:mobilePhone", adminController.putResetPassword);
+
 
 module.exports = adminRouter;

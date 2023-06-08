@@ -100,4 +100,5 @@ module.exports = {
     createNewRequest,
     getAllRequests,
     getAllRequests,
+    requestModel,
 }

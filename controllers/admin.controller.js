@@ -35,9 +35,23 @@ function getAdminInfo(req, res) {
     }
 }
 
+function getRequestSenderInfo(req, res) {
+    let requestId = req.params.requestId,
+        userId = req.params.userId;
+    if (!requestId || !userId) {
+        res.json("الرجاء إرسال معرّف المستخدم ومعرّف !!!");
+    } else {
+        // Get User Info Because User Id Is Exist
+        const { getRequestSenderInfo } = require("../models/admin.model");
+        getRequestSenderInfo(requestId, userId).then((result) => {
+            res.json(result);
+        })
+        .catch((err) => res.json(err));
+    }
+}
+
 function putResetPassword(req, res) {
     let mobilePhone = req.params.mobilePhone;
-    console.log(mobilePhone, typeof mobilePhone);
     if (!mobilePhone) {
         res.json("الرجاء إرسال رقم موبايل !!!");
     } else {
@@ -54,4 +68,5 @@ module.exports = {
     getAdminLogin,
     getAdminInfo,
     putResetPassword,
+    getRequestSenderInfo,
 }

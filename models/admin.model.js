@@ -17,7 +17,13 @@ const adminSchema = mongoose.Schema({
 
 const adminModel = mongoose.model("admin", adminSchema);
 
-// require bcryptjs module for password encrypting
+// import User Model And Request Model
+
+const { requestModel } = require("./requests.model");
+
+const { userModel } = require("./users.model");
+
+// import bcryptjs module for password encrypting
 
 const bcrypt = require("bcryptjs");
 
@@ -57,6 +63,26 @@ async function getAdminInfo(adminId) {
     }
 }
 
+async function getRequestSenderInfo(requestId, userId) {
+    try {
+        // Connect To DB
+        await mongoose.connect(DB_URL);
+        // Check If User Is Exist
+        let request = await requestModel.findById(requestId);
+        if (!request) {
+            await mongoose.disconnect();
+            return "عذراً ، لا يوجد طلب بهذا المعرّف !!!";
+        } else {
+            let user = await userModel.findById(userId);
+            return user;
+        }
+    } catch (err) {
+        // Disconnect In DB
+        await mongoose.disconnect();
+        throw Error("عذراً توجد مشكلة ، الرجاء إعادة العملية !!!");
+    }
+}
+
 async function resetPasswordForUserFromAdmin(mobilePhone) {
     try {
         // Connect To DB
@@ -84,4 +110,5 @@ module.exports = {
     adminLogin,
     getAdminInfo,
     resetPasswordForUserFromAdmin,
+    getRequestSenderInfo,
 }
