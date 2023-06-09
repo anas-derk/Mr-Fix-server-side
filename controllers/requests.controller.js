@@ -9,13 +9,16 @@ function postServiceRequest(req, res) {
     };
     const { createNewRequest } = require("../models/requests.model");
     createNewRequest(requestInfo).then((result) => {
-        res.json(result);
+        res.json("تمّ طلب الخدمة بنجاح ، سوف يتم التواصل معك قريباً جداً");
+        const { sendEmail } = require("../global/functions");
+        sendEmail(result);
     })
     .catch((err) => {
-        const { unlinkSync } = require("fs");
-        for (let file of requestImages.files) {
-            unlinkSync(file.path);
-        }
+        // const { unlinkSync } = require("fs");
+        // for (let file of requestImages.files) {
+        //     unlinkSync(file.path);
+        // }
+        console.log(err);
         res.json(err);
     });
 }

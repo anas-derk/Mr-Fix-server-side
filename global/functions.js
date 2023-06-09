@@ -43,8 +43,39 @@ function sendCodeToUserEmail(email) {
     });
 }
 
+function sendEmail(data) {
+    const fullRequestInfo = data[0];
+    const senderRequestInfo = data[1];
+    let text = `- from user email: ${senderRequestInfo.email},\n`;
+    let attachments = [];
+    for (let i = 0; i < fullRequestInfo.files.length; i++) {
+        attachments.push({
+            path: fullRequestInfo.files[i],
+        });
+    }
+    // إعداد الرسالة قبل إرسالها
+    const mailConfigurations = {
+        from: senderRequestInfo.email,
+        to: "mrfix.help@gmail.com",
+        subject: "New Request",
+        text,
+        attachments,
+    };
+    // إرسال البيانات إلى الإيميل وفق الإعدادات السابقة
+    transporterObj().sendMail(mailConfigurations, function (error, info) {
+        if (error) {
+            // إرجاع الخطأ في حالة عدم نجاح عملية الإرسال
+            console.log(err);
+        }
+        else {
+            console.log("تم إرسال الإيميل بنجاح");
+        };
+    });
+}
+
 module.exports = {
     isEmail,
     sendCodeToUserEmail,
     isNumber,
+    sendEmail,
 }

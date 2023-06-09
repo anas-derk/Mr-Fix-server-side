@@ -32,6 +32,10 @@ const requestSchema = mongoose.Schema({
 
 const requestModel = mongoose.model("request", requestSchema);
 
+// import User Model Model
+
+const { userModel } = require("./users.model");
+
 // Import Database URL
 
 const DB_URL = require("../global/DB_URL");
@@ -41,35 +45,12 @@ async function createNewRequest(requestInfo) {
         // Connect To DB
         await mongoose.connect(DB_URL);
         // Save The New Request As Document In Request Collection
-        let newRequest = new requestModel(requestInfo);
-        await newRequest.save();
+        const newRequest = new requestModel(requestInfo);
+        const fullRequestInfo = await newRequest.save();
+        const requestSenderInfo = await userModel.findById(requestInfo.userId);
         // Disconnect In DB
         await mongoose.disconnect();
-        return "تمّ طلب الخدمة بنجاح ، سوف يتم التواصل معك قريباً جداً";
-    }
-    catch (err) {
-        // Disconnect In DB
-        await mongoose.disconnect();
-        throw Error("عذراً حدث خطأ ، الرجاء إعادة العملية");
-    }
-}
-
-async function getAllRequests() {
-    try {
-        // Connect To DB
-        await mongoose.connect(DB_URL);
-        // Get All Requests
-        let allRequests = await requestModel.find({});
-        if (allRequests.length > 0) {
-            // Disconnect In DB
-            await mongoose.disconnect();
-            return allRequests;
-        } else {
-
-        }
-        // Disconnect In DB
-        await mongoose.disconnect();
-        return "تمّ طلب الخدمة بنجاح ، سوف يتم التواصل معك قريباً جداً";
+        return [fullRequestInfo, requestSenderInfo];
     }
     catch (err) {
         // Disconnect In DB
@@ -98,7 +79,6 @@ async function getAllRequests() {
 
 module.exports = {
     createNewRequest,
-    getAllRequests,
     getAllRequests,
     requestModel,
 }
