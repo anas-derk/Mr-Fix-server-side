@@ -29,8 +29,8 @@ function sendCodeToUserEmail(email) {
     const mailConfigurations = {
         from: "mrfix.help@gmail.com",
         to: email,
-        subject: "Verification User Account Is Exist ...",
-        text: `Your Code Is: ${generatedCode}`,
+        subject: "رسالة التحقق من البريد الالكتروني الخاص بحسابك على موقع مستر فيكس",
+        text: `مرحباً بك في خدمة التحقق من أنك صاحب البريد الالكتروني في مستر فيكس \n الكود هو: ${generatedCode}`,
     };
     return new Promise((resolve, reject) => {
         // إرسال رسالة الكود إلى الإيميل
