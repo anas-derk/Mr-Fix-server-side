@@ -159,16 +159,28 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                 await mongoose.disconnect();
                 return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!";
             } else {
-                let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
-                await userModel.updateOne({ _id: userId }, {
-                    firstAndLastName: newUserData.firstAndLastName,
-                    email: newUserData.email.toLowerCase(),
-                    password: newEncryptedPassword,
-                    gender: newUserData.gender,
-                    birthday: newUserData.birthday,
-                    city: newUserData.city,
-                    address: newUserData.address,
-                });
+                if (newUserData.password !== "") {
+                    let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                    await userModel.updateOne({ _id: userId }, {
+                        firstAndLastName: newUserData.firstAndLastName,
+                        email: newUserData.email.toLowerCase(),
+                        password: newEncryptedPassword,
+                        gender: newUserData.gender,
+                        birthday: newUserData.birthday,
+                        city: newUserData.city,
+                        address: newUserData.address,
+                    });
+                }
+                else {
+                    await userModel.updateOne({ _id: userId }, {
+                        firstAndLastName: newUserData.firstAndLastName,
+                        email: newUserData.email.toLowerCase(),
+                        gender: newUserData.gender,
+                        birthday: newUserData.birthday,
+                        city: newUserData.city,
+                        address: newUserData.address,
+                    });
+                }
                 await mongoose.disconnect();
             }
         } else if (isSameOfEmail == "yes" && isSameOfMobilePhone == "no") {
@@ -178,16 +190,27 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                 await mongoose.disconnect();
                 return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!";
             } else {
-                let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
-                await userModel.updateOne({ _id: userId }, {
-                    firstAndLastName: newUserData.firstAndLastName,
-                    mobilePhone: newUserData.mobilePhone,
-                    password: newEncryptedPassword,
-                    gender: newUserData.gender,
-                    birthday: newUserData.birthday,
-                    city: newUserData.city,
-                    address: newUserData.address,
-                });
+                if (newUserData.password !== "") {
+                    let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                    await userModel.updateOne({ _id: userId }, {
+                        firstAndLastName: newUserData.firstAndLastName,
+                        mobilePhone: newUserData.mobilePhone,
+                        password: newEncryptedPassword,
+                        gender: newUserData.gender,
+                        birthday: newUserData.birthday,
+                        city: newUserData.city,
+                        address: newUserData.address,
+                    });
+                } else {
+                    await userModel.updateOne({ _id: userId }, {
+                        firstAndLastName: newUserData.firstAndLastName,
+                        mobilePhone: newUserData.mobilePhone,
+                        gender: newUserData.gender,
+                        birthday: newUserData.birthday,
+                        city: newUserData.city,
+                        address: newUserData.address,
+                    });
+                }
                 await mongoose.disconnect();
             }
         } else if (isSameOfEmail == "no" && isSameOfMobilePhone == "no") {
@@ -205,29 +228,51 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                 await mongoose.disconnect();
                 return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!";
             } else {
+                if (newUserData.password !== "") {
+                    let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                    await userModel.updateOne({ _id: userId }, {
+                        firstAndLastName: newUserData.firstAndLastName,
+                        email: newUserData.email,
+                        mobilePhone: newUserData.mobilePhone,
+                        password: newEncryptedPassword,
+                        gender: newUserData.gender,
+                        birthday: newUserData.birthday,
+                        city: newUserData.city,
+                        address: newUserData.address,
+                    });
+                } else {
+                    await userModel.updateOne({ _id: userId }, {
+                        firstAndLastName: newUserData.firstAndLastName,
+                        email: newUserData.email,
+                        mobilePhone: newUserData.mobilePhone,
+                        gender: newUserData.gender,
+                        birthday: newUserData.birthday,
+                        city: newUserData.city,
+                        address: newUserData.address,
+                    });
+                }
+                await mongoose.disconnect();
+            }
+        } else {
+            if (newUserData.password !== "") {
                 let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
                 await userModel.updateOne({ _id: userId }, {
                     firstAndLastName: newUserData.firstAndLastName,
-                    email: newUserData.email,
-                    mobilePhone: newUserData.mobilePhone,
                     password: newEncryptedPassword,
                     gender: newUserData.gender,
                     birthday: newUserData.birthday,
                     city: newUserData.city,
                     address: newUserData.address,
                 });
-                await mongoose.disconnect();
+            } else {
+                await userModel.updateOne({ _id: userId }, {
+                    firstAndLastName: newUserData.firstAndLastName,
+                    gender: newUserData.gender,
+                    birthday: newUserData.birthday,
+                    city: newUserData.city,
+                    address: newUserData.address,
+                });
             }
-        } else {
-            let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
-            await userModel.updateOne({ _id: userId }, {
-                firstAndLastName: newUserData.firstAndLastName,
-                password: newEncryptedPassword,
-                gender: newUserData.gender,
-                birthday: newUserData.birthday,
-                city: newUserData.city,
-                address: newUserData.address,
-            });
             await mongoose.disconnect();
         }
     }
