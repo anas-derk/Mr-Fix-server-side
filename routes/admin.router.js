@@ -12,4 +12,6 @@ adminRouter.put("/reset-password/:mobilePhone", adminController.putResetPassword
 
 adminRouter.post("/ads/add-ads", adminController.postAddAds);
 
+adminRouter.get("/ads/all-ads", adminController.getAllAds);
+
 module.exports = adminRouter;

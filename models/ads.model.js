@@ -42,6 +42,21 @@ async function addAds(content) {
     }
 }
 
+async function getAllAds() {
+    try {
+        await mongoose.connect(DB_URL);
+        const adsList = await adsModel.find({});
+        if (adsList) {
+            mongoose.disconnect();
+            return adsList;
+        }
+    } catch(err) {
+        mongoose.disconnect();
+        throw Error(err);
+    }
+}
+
 module.exports = {
     addAds,
+    getAllAds,
 }

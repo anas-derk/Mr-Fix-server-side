@@ -76,10 +76,20 @@ function postAddAds(req, res) {
     }
 }
 
+function getAllAds(req, res) {
+    const { getAllAds } = require("../models/ads.model");
+    getAllAds()
+    .then((result) => {
+        res.json(result);
+    })
+    .catch((err) => console.log(err));
+}
+
 module.exports = {
     getAdminLogin,
     getAdminInfo,
     putResetPassword,
     getRequestSenderInfo,
     postAddAds,
+    getAllAds,
 }
