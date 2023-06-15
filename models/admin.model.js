@@ -8,20 +8,22 @@ const DB_URL = require("../global/DB_URL");
 
 // create Admin User Schema For Admin User Model
 
-const adminSchema = mongoose.Schema({
-    email: String,
-    password: String,
-});
+// const adminSchema = mongoose.Schema({
+//     email: String,
+//     password: String,
+//     userType: {
+//         type: String,
+//         default: "admin",
+//     },
+// });
 
 // create Admin User Model In Database
 
-const adminModel = mongoose.model("admin", adminSchema);
+// const adminModel = mongoose.model("admin", adminSchema);
 
 // import User Model And Request Model
 
 const { requestModel } = require("./requests.model");
-
-const { userModel } = require("./users.model");
 
 // import bcryptjs module for password encrypting
 
@@ -31,12 +33,12 @@ const bcrypt = require("bcryptjs");
 
 async function adminLogin(email, password) {
     await mongoose.connect(DB_URL);
-    let adminData = await adminModel.findOne({ email });
+    let adminData = await mongoose.models.admin.findOne({ email });
     if (!adminData) {
         await mongoose.disconnect();
         return "عذراً البريد الالكتروني أو كلمة السر خاطئة ...";
     } else {
-        let isTruePassword = bcrypt.compare(password, adminData.password);
+        let isTruePassword = await bcrypt.compare(password, adminData.password);
         if (isTruePassword) {
             await mongoose.disconnect();
             return adminData._id;

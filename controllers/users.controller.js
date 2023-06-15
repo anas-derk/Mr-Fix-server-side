@@ -47,9 +47,9 @@ function getForgetPassword(req, res) {
         if (isEmail(email)) {
             const { isUserAccountExist } = require("../models/users.model");
             // Check If User Is Exist
-            isUserAccountExist(email).then((userId) => {
+            isUserAccountExist(email).then((userIdAndType) => {
                 // If User Is Exist => Send Code To This Email
-                if (userId) {
+                if (userIdAndType) {
                     // إذا كان الحساب موجوداً نقوم بإرسال الإيميل
                     const { sendCodeToUserEmail } = require("../global/functions");
                     sendCodeToUserEmail(email)
@@ -57,7 +57,7 @@ function getForgetPassword(req, res) {
                             // إرجاع البيانات المطلوبة لعملية إعادة ضبط كلمة السر
                             res.json(
                                 {
-                                    userId,
+                                    userIdAndType,
                                     code: generatedCode[0],
                                 }
                             );
@@ -137,14 +137,15 @@ function putProfile(req, res) {
 
 function putResetPassword(req, res) {
     // Get User Id
-    let userId = req.params.userId;
+    let userId = req.params.userId,
+        userType = req.query.userType;
     // Check If User Id Is Exist
-    if (!userId) res.status(500).json("عذراً الرجاءإرسال معرّف مستخدم !!");
+    if (!userId || !userType) res.status(500).json("عذراً الرجاءإرسال معرّف مستخدم !!");
     else {
         // Get Reset User Password Because User Id Is Exist
         let newPassword = req.query.newPassword;
         const { resetUserPassword } = require("../models/users.model");
-        resetUserPassword(userId, newPassword).then((result) => {
+        resetUserPassword(userId, userType, newPassword).then((result) => {
             res.json(result);
         })
             .catch((err) => res.json(err));

@@ -13,6 +13,10 @@ const userSchema = mongoose.Schema({
     birthday: String,
     city: String,
     address: String,
+    userType: {
+        type: String,
+        default: "user",
+    },
 });
 
 // Create User Model From User Schema
@@ -26,6 +30,21 @@ const DB_URL = require("../global/DB_URL");
 // require bcryptjs module for password encrypting
 
 const bcrypt = require("bcryptjs");
+
+// create Admin User Schema For Admin User Model
+
+const admin_user_schema = mongoose.Schema({
+    email: String,
+    password: String,
+    userType: {
+        type: String,
+        default: "admin",
+    },
+});
+
+// create Admin User Model In Database
+
+const admin_user_model = mongoose.model("admin", admin_user_schema);
 
 // Define Create New User Function
 
@@ -86,10 +105,17 @@ async function isUserAccountExist(email) {
         // Connect To DB
         await mongoose.connect(DB_URL);
         // Check If User Is Exist
-        let user = await userModel.findOne({ email });
-        await mongoose.disconnect();
-        if (user) return user._id;
-        return false;
+        let user = await mongoose.models.user.findOne({ email });
+        if (user) {
+            await mongoose.disconnect();
+            return { userId: user._id, userType: "user" };
+        }
+        let admin = await mongoose.models.admin.findOne({ email });
+        if (admin) {
+            await mongoose.disconnect();
+            return { userId: admin._id, userType: "admin" };
+        }
+        // return false;
     } catch (err) {
         // Disconnect In DB
         await mongoose.disconnect();
@@ -284,11 +310,15 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
 }
 
 // دالة لإعادة تعيين كلمة السر
-async function resetUserPassword(userId, newPassword) {
+async function resetUserPassword(userId, userType, newPassword) {
     try {
         await mongoose.connect(DB_URL);
         let newEncryptedPassword = await bcrypt.hash(newPassword, 10);
-        await userModel.updateOne({ _id: userId }, { password: newEncryptedPassword });
+        if (userType == "user") {
+            await mongoose.models.user.updateOne({ _id: userId }, { password: newEncryptedPassword });
+            return "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!";
+        }
+        await mongoose.models.admin.updateOne({ _id: userId }, { password: newEncryptedPassword });
         return "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!";
     } catch (err) {
         // Disconnect In DB
@@ -304,5 +334,4 @@ module.exports = {
     updateProfile,
     isUserAccountExist,
     resetUserPassword,
-    userModel,
 }

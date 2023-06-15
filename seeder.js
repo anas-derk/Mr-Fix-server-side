@@ -7,6 +7,10 @@ const DB_URL = "mongodb://127.0.0.1:27017/mr-fix";
 const admin_user_schema = mongoose.Schema({
     email: String,
     password: String,
+    userType: {
+        type: String,
+        default: "admin",
+    },
 });
 
 // create Admin User Model In Database
