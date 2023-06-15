@@ -7,9 +7,7 @@ const mongoose = require("mongoose");
 const requestSchema = mongoose.Schema({
     requestType: String,
     serviceType: String,
-    newAddress: String,
-    imageOfTheBrokenTool: String,
-    pictureOfTheVacationSpot: String,
+    explainAndNewAddress: String,
     preferredDateOfVisit: {
         type: String,
         default: "فوراً",

@@ -10,5 +10,6 @@ adminRouter.get("/requests/:requestId/users/:userId", adminController.getRequest
 
 adminRouter.put("/reset-password/:mobilePhone", adminController.putResetPassword);
 
+adminRouter.post("/ads/add-ads", adminController.postAddAds);
 
 module.exports = adminRouter;

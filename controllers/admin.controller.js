@@ -64,9 +64,22 @@ function putResetPassword(req, res) {
     }
 }
 
+function postAddAds(req, res) {
+    let content = req.body.content;
+    if (!content) res.json("عذراً لا يوجد محتوى لهذا الإعلان ، الرجاء كتابة محتوى وإرسالها");
+    else {
+        const { addAds } = require("../models/ads.model");
+        addAds(content).then((result) => {
+            req.json(result);
+        })
+        .catch((err) => res.json(err));
+    }
+}
+
 module.exports = {
     getAdminLogin,
     getAdminInfo,
     putResetPassword,
     getRequestSenderInfo,
+    postAddAds,
 }
