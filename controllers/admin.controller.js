@@ -31,7 +31,7 @@ function getAdminInfo(req, res) {
         getAdminInfo(adminId).then((result) => {
             res.json(result);
         })
-        .catch((err) => res.json(err));
+            .catch((err) => res.json(err));
     }
 }
 
@@ -46,7 +46,7 @@ function getRequestSenderInfo(req, res) {
         getRequestSenderInfo(requestId, userId).then((result) => {
             res.json(result);
         })
-        .catch((err) => res.json(err));
+            .catch((err) => res.json(err));
     }
 }
 
@@ -60,7 +60,7 @@ function putResetPassword(req, res) {
         resetPasswordForUserFromAdmin(mobilePhone).then((result) => {
             res.json(result);
         })
-        .catch((err) => res.json(err));
+            .catch((err) => res.json(err));
     }
 }
 
@@ -72,17 +72,30 @@ function postAddAds(req, res) {
         addAds(content).then((result) => {
             req.json(result);
         })
-        .catch((err) => res.json(err));
+            .catch((err) => res.json(err));
     }
 }
 
 function getAllAds(req, res) {
     const { getAllAds } = require("../models/ads.model");
     getAllAds()
-    .then((result) => {
-        res.json(result);
-    })
-    .catch((err) => console.log(err));
+        .then((result) => {
+            res.json(result);
+        })
+        .catch((err) => console.log(err));
+}
+
+function deleteAds(req, res) {
+    let adsId = req.params.adsId;
+    if (!adsId) res.json("عذراً يجب إرسال معرّف الإعلان حتى يتم حذفه");
+    else {
+        const { deleteAds } = require("../models/ads.model");
+        deleteAds(adsId)
+            .then((result) => {
+                res.json(result);
+            })
+            .catch((err) => console.log(err));
+    }
 }
 
 module.exports = {
@@ -92,4 +105,5 @@ module.exports = {
     getRequestSenderInfo,
     postAddAds,
     getAllAds,
+    deleteAds,
 }

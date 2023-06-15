@@ -14,4 +14,6 @@ adminRouter.post("/ads/add-ads", adminController.postAddAds);
 
 adminRouter.get("/ads/all-ads", adminController.getAllAds);
 
+adminRouter.delete("/ads/delete-ads/:adsId", adminController.deleteAds);
+
 module.exports = adminRouter;

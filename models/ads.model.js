@@ -56,7 +56,19 @@ async function getAllAds() {
     }
 }
 
+async function deleteAds(adsId) {
+    try {
+        await mongoose.connect(DB_URL);
+        await adsModel.deleteOne({ _id: adsId });
+        return "تم حذف الإعلان بنجاح";
+    }catch(err) {
+        mongoose.disconnect();
+        throw Error(err);
+    }
+}
+
 module.exports = {
     addAds,
     getAllAds,
+    deleteAds,
 }
