@@ -1,4 +1,5 @@
 function createNewUser(req, res) {
+    // جلب الداتا المطلوبة المرسلة مع الطلب
     let firstAndLastName = req.body.firstAndLastName,
         email = req.body.email,
         mobilePhone = req.body.mobilePhone,
@@ -7,50 +8,48 @@ function createNewUser(req, res) {
         birthday = req.body.birthday,
         city = req.body.city,
         address = req.body.address;
-    // Start Handle Email Value To Check It Before Save In DB
-    const { isEmail } = require("../global/functions");
-    // Check If Email, Password And Name Are Exist
+    // التحقق فيما إذا كانت الحقول المرسلة موجودة أم لم يتم إرسالها
     if (firstAndLastName.length > 0 && mobilePhone.length > 0
         && password.length > 0 && gender.length > 0 && birthday.length > 0
         && city.length > 0 && address.length > 0) {
         if (email.length > 0) {
-            // Check If Email Valid
+            const { isEmail } = require("../global/functions");
+            // التحقق من كون الحقل email أنه إيميل أم لا
             if (isEmail(email)) {
                 const { createNewUser } = require("../models/users.model");
-                // Create New User
+                // إنشاء حساب
                 createNewUser(req.body).then((msg) => {
+                    // إعادة الرسالة إلى المستخدم كاستجابة
                     res.json(msg);
                 })
+                    // في حالة حدث خطأ إعادته للمستخدم
                     .catch((err) => res.json(err));
             }
             else {
-                // Return Error Msg If Email Is Not Valid
-                res.status(500).json("Error, This Is Not Email Valid !!");
+                // إذا لم يكن الإيميل المرسل صالح إعادة رسالة خطأ
+                res.status(500).json("عذراً ، الإيميل المرسل غير صالح");
             }
         } else {
-            const { createNewUser } = require("../models/users.model");
-            // Create New User
-            createNewUser(req.body).then((msg) => {
-                res.json(msg);
-            })
-                .catch((err) => res.json(err));
+            // في حالة أحد الحقول غير مرسلة عندها نعيد للمستخدم رسالة خطأ
+            res.status(500).json("عذراً أحد الحقول غير موجودة ، الرجاء إرسال كل الحقول");
         }
     }
 }
 
 function getForgetPassword(req, res) {
+    // جلب الإيميل المرسل
     const email = req.query.email;
+    // التحقق إن تمّ إرساله
     if (email) {
-        // Start Handle Email Value To Check It Before Save In DB
+        // التحقق من أنه إيميل صالح
         const { isEmail } = require("../global/functions");
-        // Check If Email Valid
         if (isEmail(email)) {
             const { isUserAccountExist } = require("../models/users.model");
-            // Check If User Is Exist
+            // في حالة كان الإيميل صالح نتحقق من كون المستخدم موجود
             isUserAccountExist(email).then((userIdAndType) => {
-                // If User Is Exist => Send Code To This Email
+                // التحقق من أن النتيجة المعادة هي رقم معرّف المستخدم ونوع المستخدم 
                 if (userIdAndType) {
-                    // إذا كان الحساب موجوداً نقوم بإرسال الإيميل
+                    // إرسال كود إلى الإيميل
                     const { sendCodeToUserEmail } = require("../global/functions");
                     sendCodeToUserEmail(email)
                         .then(generatedCode => {
@@ -62,96 +61,111 @@ function getForgetPassword(req, res) {
                                 }
                             );
                         })
+                        // في حالة حدث خطأ نعيد الخطأ للمستخدم
                         .catch(err => res.json(err));
                 } else {
+                    // في حالة كان البريد الالكتروني غير موجود نرسل رسالة خطأ
                     res.json("عذراً البريد الالكتروني الذي أدخلته غير موجود !!");
                 }
             })
                 .catch((err) => res.json(err));
         }
         else {
-            // Return Error Msg If Email Is Not Valid
+            // في حالة كان ا لإيميل غير صالح نرسل رسالة خطأ كاستجابة للمستخدم
             res.status(500).json("عذراً ، الإيميل الذي أدخلته غير صالح !!!");
         }
     }
     else {
+        // في حالة لم يتم إرسال الإيميل من قبل المستخدم نعيد رسالة خطأ للسمستخدم 
         res.status(500).json("الرجاء إرسال الإيميل المطلوب لاستعادة كلمة السر الخاصة به");
     }
 }
 
 function login(req, res) {
+    // جلب بيانات تسجيل الدخول الخاصة بالمستخدم
     let text = req.query.text,
         password = req.query.password;
-    // Start Handle Email Value To Check It Before Save In DB
-    const { isEmail, isNumber } = require("../global/functions");
-    // Check If Email And Password Are Exist
+    // التحقق من أن النص وكلمة السر قد تمّ إرسالها
     if (text.length > 0 && password.length > 0) {
-        // Check If Email Valid Or Mobile Phone Valid
+        // التحقق من البيانات قبل إرسالها لقاعدة البيانات ( هل النص المرسل هو إيميل صالح أو رقم صالح )
+        const { isEmail, isNumber } = require("../global/functions");
         if (isEmail(text) || isNumber(text)) {
+            // في حالة كان إيميل صالح أو رقم صالح فإننا نقوم بعملية تسجيل الدخول
             const { login } = require("../models/users.model");
             login(text, password).then((result) => {
+                // إعادة النتيجة للمستخدم
                 res.json(result);
             })
+                // إعادة رسالة خطأ في حالة حدث خطأ أثناء عملية تسجيل الدخول
                 .catch((err) => res.json(err));
         } else {
-            // Return Error Msg If Email Is Not Valid
-            res.status(500).json("Error, This Is Not Email Valid !!");
+            // إعادة رسالة خطأ في حالة كان النص ليس إيميل أو رقم هاتف صالح
+            res.status(500).json("خطأ ، عذراً النص الذي أرسلته ليس إيميل أو رقم صالح");
         }
     } else {
-        res.status(500).json("Error, Please Enter Email And Password Or Rest Input !!");
+        // في حالة لم يتم إرسال قيم أحد الحقول أو كلاهما عندها نرسل رسالة خطأ للمستخدم
+        res.status(500).json("عذراً ، أحد الحقول لم يتم إرسالها");
     }
 }
 
 function getUserInfo(req, res) {
-    // Get User Id
+    // جلب رقم معرّف المستخدم
     let userId = req.params.userId;
-    // Check If User Id Is Exist
-    if (!userId) res.status(500).json("Sorry, Please Send User Id !!");
+    // التحقق من أنه قد تمّ إرساله فعلاً
+    if (!userId) res.status(500).json("عذراً ، يجب إرسال رقم معرّف المستخدم");
     else {
-        // Get User Info Because User Id Is Exist
+        // جلب معلومات المستخدم
         const { getUserInfo } = require("../models/users.model");
         getUserInfo(userId).then((result) => {
+            // إعادة النتيجة للمستخدم
             res.json(result);
         })
+            // إعادة رسالة الخطأ في حالة حدثت مشكلة أثناء جلب بيانات المستخدم
             .catch((err) => res.json(err));
     }
 }
 
 function putProfile(req, res) {
-    // Get User Id
+    // جلب المعلومات المرسلة
     let userId = req.params.userId,
         newUserData = req.body,
         isSameOfEmail = req.query.isSameOfEmail;
-        isSameOfMobilePhone = req.query.isSameOfMobilePhone;
-    // Check If User Id Is Exist
+    isSameOfMobilePhone = req.query.isSameOfMobilePhone;
+    // التحقق من أنّ رقم معرّف المستخدم قد تمّ إرساله فعلاً
     if (!userId) res.status(500).json("Sorry, Please Send User Id !!");
     else {
-        // Get User Info Because User Id Is Exist
+        // تعديل بيانات المستخدم
         const { updateProfile } = require("../models/users.model");
         updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobilePhone).then((result) => {
+            // إعادة النتيجة للمستخدم
             res.json(result);
         })
-        .catch((err) => res.json(err));
-    }
-}
-
-function putResetPassword(req, res) {
-    // Get User Id
-    let userId = req.params.userId,
-        userType = req.query.userType;
-    // Check If User Id Is Exist
-    if (!userId || !userType) res.status(500).json("عذراً الرجاءإرسال معرّف مستخدم !!");
-    else {
-        // Get Reset User Password Because User Id Is Exist
-        let newPassword = req.query.newPassword;
-        const { resetUserPassword } = require("../models/users.model");
-        resetUserPassword(userId, userType, newPassword).then((result) => {
-            res.json(result);
-        })
+            // إعادة رسالة الخطأ في حالة حدثت مشكلة بعملية تعديل بيانات المستخدم
             .catch((err) => res.json(err));
     }
 }
 
+function putResetPassword(req, res) {
+    // جلب المعلومات المرسلة
+    let userId = req.params.userId,
+        userType = req.query.userType;
+    // التحقق من كون المعلومات قد تمّ إرسالها فعلاً
+    if (!userId || !userType) res.status(500).json("عذراً الرجاءإرسال معرّف مستخدم ، أو نوع الحساب أو كلاهما !!");
+    else {
+        // جلب كلمة المرور الجديدة
+        let newPassword = req.query.newPassword;
+        // إعادة ضبط كلمة المرور
+        const { resetUserPassword } = require("../models/users.model");
+        resetUserPassword(userId, userType, newPassword).then((result) => {
+            // إعادة النتيجة للمستخدم
+            res.json(result);
+        })
+            // إعادة رسالة الخطأ للمستخدم في حالة حدثت مشكلة أثناء عملية إعادة ضبط كلمة المرور
+            .catch((err) => res.json(err));
+    }
+}
+
+// تصدير الدوال التي تمّ تعريفها
 module.exports = {
     createNewUser,
     login,
