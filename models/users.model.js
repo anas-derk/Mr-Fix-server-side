@@ -2,7 +2,7 @@
 
 const mongoose = require("mongoose");
 
-// تعريف هيكل جدول المستخدمين
+// تعريف كائن هيكل جدول المستخدمين
 
 const userSchema = new mongoose.Schema({
     firstAndLastName: String,
@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     },
 });
 
-// إنشاء جدول المستخدمين باستخدام الهيكلية السابقة
+// إنشاء كائت جدول المستخدمين باستخدام الهيكلية السابقة
 
 const userModel = mongoose.model("user", userSchema);
 

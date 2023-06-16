@@ -82,6 +82,7 @@ async function getAllRequests() {
     }
 }
 
+// تصدير الدوال المعرّفة سابقاً وكائن الطلب
 module.exports = {
     createNewRequest,
     getAllRequests,
