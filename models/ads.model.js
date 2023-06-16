@@ -1,24 +1,10 @@
-// استيراد المكتبة الخاصة بالتعامل مع قواعد البيانات mongo
-
-const mongoose = require("mongoose");
-
 // استيراد الملف الذي يحتوي رابط قاعدة البيانات
 
 const DB_URL = require("../global/DB_URL");
 
-// إنشاء كائن هيكل جدول الإعلانات
+// استيراد كائن ال mongoose + adsModel
 
-const adsSchema = new mongoose.Schema({
-    content: String,
-    adsPostDate: {
-        type: Date,
-        default: Date.now(),
-    },
-});
-
-// إنشاء كائن جدول الإعلانات
-
-const adsModel = mongoose.model("ad", adsSchema);
+const { mongoose, adsModel } = require("./all.models");
 
 async function addAds(content) {
     try {

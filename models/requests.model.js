@@ -1,38 +1,6 @@
-// استيراج مكتبة التعامل مع قواعد البيانات mongo
+// استيراد كائن ال mongoose + requestModel
 
-const mongoose = require("mongoose");
-
-// تعريف كائن هيكل جدول الطلبات
-
-const requestSchema = new mongoose.Schema({
-    requestType: String,
-    serviceType: String,
-    explainAndNewAddress: String,
-    preferredDateOfVisit: {
-        type: String,
-        default: "فوراً",
-    },
-    preferredTimeOfVisit: {
-        type: String,
-        default: "فوراً",
-    },
-    electricityTimes: String,
-    isAlternativeEnergyExist: String,
-    requestPostDate: {
-        type: Date,
-        default: Date.now(),
-    },
-    userId: String,
-    files: Array,
-});
-
-// إنشاء كائن جدول الطلبات من كائن هيكل الطلبات
-
-const requestModel = mongoose.model("request", requestSchema);
-
-// استيراد كائن جدول المستخدمين
-
-const { userModel } = require("./users.model");
+const { mongoose, requestModel } = require("./all.models");
 
 // استيراد الملف الذي يحتوي على رابط قاعدة البيانات
 
@@ -47,7 +15,7 @@ async function createNewRequest(requestInfo) {
         // الاحتفاظ بمعلومات الطلب كاملة للاستفادة منها لاحقاً في إرسالها كرسالة على إيميل المسؤول
         const fullRequestInfo = await newRequest.save();
         // البحث في جدول المستخدمين عن المستخدم الذي أرسل الطلب
-        const requestSenderInfo = await userModel.findById(requestInfo.userId);
+        const requestSenderInfo = await mongoose.models.user.findById(requestInfo.userId);
         // قطع الاتصال بقاعدة البيانات
         await mongoose.disconnect();
         // تجميع بيانات الطلب + بيانات مرسل الطلب ضمن مصفوفة للاستفادة منها لاحقاً كما ذكرت
@@ -86,5 +54,4 @@ async function getAllRequests() {
 module.exports = {
     createNewRequest,
     getAllRequests,
-    requestModel,
 }

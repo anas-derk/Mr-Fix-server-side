@@ -1,50 +1,14 @@
-// استيراد مكتبة ال mongoose للتعامل مع قاعدة البيانات
-
-const mongoose = require("mongoose");
-
-// تعريف كائن هيكل جدول المستخدمين
-
-const userSchema = new mongoose.Schema({
-    firstAndLastName: String,
-    email: String,
-    mobilePhone: String,
-    password: String,
-    gender: String,
-    birthday: String,
-    city: String,
-    address: String,
-    userType: {
-        type: String,
-        default: "user",
-    },
-});
-
-// إنشاء كائت جدول المستخدمين باستخدام الهيكلية السابقة
-
-const userModel = mongoose.model("user", userSchema);
-
 // استيراد ملف رابط قاعدة البيانات
 
 const DB_URL = require("../global/DB_URL");
 
+// استيراد كائن ال mongoose + userModel
+
+const { mongoose, userModel } = require("./all.models");
+
 // استيراد مكتبة تشفير كلمة المرور
 
 const bcrypt = require("bcryptjs");
-
-// إنشاء هيكلية جدول المسؤول
-
-const admin_user_schema = new mongoose.Schema({
-    email: String,
-    password: String,
-    userType: {
-        type: String,
-        default: "admin",
-    },
-});
-
-// إنشاء جدول المسؤولين باسخدام الهيكلية السابقة
-
-const admin_user_model = mongoose.model("admin", admin_user_schema);
 
 // تعريف دالة إنشاء حساب مستخدم جديد
 
@@ -354,7 +318,7 @@ async function resetUserPassword(userId, userType, newPassword) {
         // التحقق من كون نوع المستخدم هو مستخدم عادي
         if (userType == "user") {
             // إعادة تعيين كلمة السر من خلال تعديل بيانات المستخدم في جدول المستخدمين ومن ثمّ إعادة رسالة نجاح
-            await mongoose.models.user.updateOne({ _id: userId }, { password: newEncryptedPassword });
+            await userModel.updateOne({ _id: userId }, { password: newEncryptedPassword });
             return "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!";
         }
         // إعادة تعيين كلمة السر من خلال تعديل بيانات المستخدم في جدول المسؤولين في حالة لم يكن مستخدم عادي ومن ثمّ إعادة رسالة نجاح

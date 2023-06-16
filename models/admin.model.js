@@ -1,29 +1,10 @@
-// استيراد مكتبة التعامل مع قواعد البيانات mongo
-
-const mongoose = require("mongoose");
-
 // استيراد الملف الذي يحتوي على رابط قاعدة البيانات
 
 const DB_URL = require("../global/DB_URL");
 
-// create Admin User Schema For Admin User Model
+// استيراد كائن ال mongoose + adminModel
 
-// const adminSchema = mongoose.Schema({
-//     email: String,
-//     password: String,
-//     userType: {
-//         type: String,
-//         default: "admin",
-//     },
-// });
-
-// create Admin User Model In Database
-
-// const adminModel = mongoose.model("admin", adminSchema);
-
-// import User Model And Request Model
-
-const { requestModel } = require("./requests.model");
+const { mongoose, adminModel } = require("./all.models");
 
 // استيراد مكتبة التشفير
 
@@ -33,7 +14,7 @@ async function adminLogin(email, password) {
     // الاتصال بقاعدة البيانات
     await mongoose.connect(DB_URL);
     // البحث في جدول المسؤولين عن إيميل مطابق
-    let adminData = await mongoose.models.admin.findOne({ email });
+    let adminData = await adminModel.findOne({ email });
     // في حالة لم يكن يوجد بيانات لهذا الإيميل نرجج رسالة خطأ
     if (!adminData) {
         await mongoose.disconnect();
@@ -77,14 +58,14 @@ async function getRequestSenderInfo(requestId, userId) {
         // الاتصال بقاعدة البيانات
         await mongoose.connect(DB_URL);
         // التحقق من أنّ الطلب موجود عن طريق البحث في جدول الطلبات عن رقم معرّف موجود مسبقاً
-        let request = await requestModel.findById(requestId);
+        let request = await mongoose.models.request.findById(requestId);
         // في حالة لم يكن هنالك طلب سابق عندها نرجع رسالة خطأ
         if (!request) {
             await mongoose.disconnect();
             return "عذراً ، لا يوجد طلب بهذا المعرّف !!!";
         } else {
             // في حالة كان يوجد طلب بهذا المعرّف فأننا نبحث عن مستخدم في جدول المستخدمين له معرّف مطابق للرقم المُرسل
-            let user = await userModel.findById(userId);
+            let user = await mongoose.models.user.findById(userId);
             // نعيد بيانات المستخدم
             return user;
         }
