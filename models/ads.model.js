@@ -1,14 +1,14 @@
-// import mongoose module for manipulate with mongo database
+// استيراد المكتبة الخاصة بالتعامل مع قواعد البيانات mongo
 
 const mongoose = require("mongoose");
 
-// import Database Url
+// استيراد الملف الذي يحتوي رابط قاعدة البيانات
 
 const DB_URL = require("../global/DB_URL");
 
-// create Admin User Schema For Admin User Model
+// إنشاء كائن هيكل جدول الإعلانات
 
-const adsSchema = mongoose.Schema({
+const adsSchema = new mongoose.Schema({
     content: String,
     adsPostDate: {
         type: Date,
@@ -16,27 +16,34 @@ const adsSchema = mongoose.Schema({
     },
 });
 
-// create Ads User Model In Database
+// إنشاء كائن جدول الإعلانات
 
 const adsModel = mongoose.model("ad", adsSchema);
 
 async function addAds(content) {
     try {
+        // الاتصال بقاعدة البيانات
         await mongoose.connect(DB_URL);
+        // البحث في جدول الإعلانات عن إعلان له نفس المحتوى تماماً
         let ads = await adsModel.findOne({ content });
+        // في حالة كان يوجد إعلان مطابق فإننا نعيد رسالة خطأ
         if (ads) {
             mongoose.disconnect();
             return "عذراً يوجد إعلان سابق بنفس المحتوى تماماً";
         }
         else {
+            // في حالة لم يكن يوجد إعلان مطابق فإننا ننشأ إعلان
             let newAds = new adsModel({
                 content
             });
+            // حفظ الإعلان في قاعدة البيانات
             await newAds.save();
+            // في حالة نجاح العملية فأننا نقطع الاتصال بقاعدة البيانات ونعيد رسالة نجاح
             mongoose.disconnect();
             return "تهانينا ، لقد تمّ إضافة الإعلان بنجاح";
         }
     } catch(err) {
+        // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
         mongoose.disconnect();
         throw Error(err);
     }
@@ -44,13 +51,15 @@ async function addAds(content) {
 
 async function getAllAds() {
     try {
+        // الاتصال بقاعدة البيانات
         await mongoose.connect(DB_URL);
-        const adsList = await adsModel.find({});
-        if (adsList) {
-            mongoose.disconnect();
-            return adsList;
-        }
+        // جلب كل بيانات الإعلانات من جدول الإعلانات بترتيب تنازلي
+        const adsList = await adsModel.find({}).sort({ adsPostDate: -1 });
+        // قطع الاتصال بقاعدة البيانات وإعادة بيانات الإعلانات
+        mongoose.disconnect();
+        return adsList;
     } catch(err) {
+        // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
         mongoose.disconnect();
         throw Error(err);
     }
@@ -58,15 +67,20 @@ async function getAllAds() {
 
 async function deleteAds(adsId) {
     try {
+        // الاتصال بقاعدة البيانات
         await mongoose.connect(DB_URL);
+        // البحث عن إعلان له نفس رقم المعرّف وحذفه
         await adsModel.deleteOne({ _id: adsId });
+        // إرجاع رسالة نجاح العملية
         return "تم حذف الإعلان بنجاح";
     }catch(err) {
+        // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
         mongoose.disconnect();
         throw Error(err);
     }
 }
 
+// تصدير الدوال المعرفة سابقاً
 module.exports = {
     addAds,
     getAllAds,
