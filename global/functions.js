@@ -46,7 +46,7 @@ function sendCodeToUserEmail(email) {
 function sendEmail(data) {
     const fullRequestInfo = data[0];
     const senderRequestInfo = data[1];
-    let text = `- from user email: ${senderRequestInfo.email},\n`;
+    let text = `- request type: ${fullRequestInfo.requestType}\n- service type: ${fullRequestInfo.serviceType}\n- explain And New Address: ${fullRequestInfo.explainAndNewAddress}\n- preferred Date Of Visit: ${fullRequestInfo.preferredDateOfVisit}\n- preferred Time Of Visit: ${fullRequestInfo.preferredTimeOfVisit}\n- electricity Times: ${fullRequestInfo.electricityTimes}\n- is Alternative Energy Exist: ${fullRequestInfo.isAlternativeEnergyExist}\n ====================\n- first And Last Name: ${senderRequestInfo.firstAndLastName}\n- user email: ${senderRequestInfo.email}\n- mobile phone: ${senderRequestInfo.mobilePhone}\n- gender: ${senderRequestInfo.gender}\n- birthday: ${senderRequestInfo.birthday}\n- city: ${senderRequestInfo.city}\n- address: ${senderRequestInfo.address}`;
     let attachments = [];
     for (let i = 0; i < fullRequestInfo.files.length; i++) {
         attachments.push({
