@@ -11,7 +11,7 @@ async function addAds(content) {
         // الاتصال بقاعدة البيانات
         await mongoose.connect(DB_URL);
         // البحث في جدول الإعلانات عن إعلان له نفس المحتوى تماماً
-        let ads = await adsModel.findOne({ content });
+        const ads = await adsModel.findOne({ content });
         // في حالة كان يوجد إعلان مطابق فإننا نعيد رسالة خطأ
         if (ads) {
             mongoose.disconnect();
@@ -19,18 +19,18 @@ async function addAds(content) {
         }
         else {
             // في حالة لم يكن يوجد إعلان مطابق فإننا ننشأ إعلان
-            let newAds = new adsModel({
+            const newAds = new adsModel({
                 content
             });
             // حفظ الإعلان في قاعدة البيانات
             await newAds.save();
             // في حالة نجاح العملية فأننا نقطع الاتصال بقاعدة البيانات ونعيد رسالة نجاح
-            mongoose.disconnect();
+            await mongoose.disconnect();
             return "تهانينا ، لقد تمّ إضافة الإعلان بنجاح";
         }
     } catch(err) {
         // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
-        mongoose.disconnect();
+        await awaitmongoose.disconnect();
         throw Error(err);
     }
 }
@@ -42,11 +42,11 @@ async function getAllAds() {
         // جلب كل بيانات الإعلانات من جدول الإعلانات بترتيب تنازلي
         const adsList = await adsModel.find({}).sort({ adsPostDate: -1 });
         // قطع الاتصال بقاعدة البيانات وإعادة بيانات الإعلانات
-        mongoose.disconnect();
+        await mongoose.disconnect();
         return adsList;
     } catch(err) {
         // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
-        mongoose.disconnect();
+        await mongoose.disconnect();
         throw Error(err);
     }
 }

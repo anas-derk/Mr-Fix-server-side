@@ -33,7 +33,7 @@ async function getAllRequests() {
         // الاتصال بقاعدة البيانات
         await mongoose.connect(DB_URL);
         // جلب كل بيانات الطلبات من جدول الطلبات مع ترتيبها تنازلياً
-        let requests = await requestModel.find({}).sort({ requestPostDate: -1 });
+        const requests = await requestModel.find({}).sort({ requestPostDate: -1 });
         if (requests) {
             // إذا كان يوجد طلبات بالتالي إعادتها للمستخدم وقطع الاتصال بقاعدة البيانات
             await mongoose.disconnect();

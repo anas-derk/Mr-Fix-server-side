@@ -6,7 +6,7 @@ function postServiceRequest(req, res) {
         requestImages.push(file.path);
     }
     // تجميع بيانات الطلب بحيث يتم وضع بيانات الطلب مع مسارات الملفات ضمن كائن واحد مع مراعاة أن يكون ليس هنالك صور قد تمّ رفعها
-    let requestInfo = {
+    const requestInfo = {
         ...Object.assign({}, req.body),
         files: requestImages,
     };

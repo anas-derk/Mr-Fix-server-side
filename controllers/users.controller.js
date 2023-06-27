@@ -1,6 +1,6 @@
 function createNewUser(req, res) {
     // جلب الداتا المطلوبة المرسلة مع الطلب
-    let firstAndLastName = req.body.firstAndLastName,
+    const firstAndLastName = req.body.firstAndLastName,
         email = req.body.email,
         mobilePhone = req.body.mobilePhone,
         password = req.body.password,
@@ -93,7 +93,7 @@ function getForgetPassword(req, res) {
 
 function login(req, res) {
     // جلب بيانات تسجيل الدخول الخاصة بالمستخدم
-    let text = req.query.text,
+    const text = req.query.text,
         password = req.query.password;
     // التحقق من أن النص وكلمة السر قد تمّ إرسالها
     if (text.length > 0 && password.length > 0) {
@@ -120,7 +120,7 @@ function login(req, res) {
 
 function getUserInfo(req, res) {
     // جلب رقم معرّف المستخدم
-    let userId = req.params.userId;
+    const userId = req.params.userId;
     // التحقق من أنه قد تمّ إرساله فعلاً
     if (!userId) res.status(500).json("عذراً ، يجب إرسال رقم معرّف المستخدم");
     else {
@@ -137,7 +137,7 @@ function getUserInfo(req, res) {
 
 function putProfile(req, res) {
     // جلب المعلومات المرسلة
-    let userId = req.params.userId,
+    const userId = req.params.userId,
         newUserData = req.body,
         isSameOfEmail = req.query.isSameOfEmail;
     isSameOfMobilePhone = req.query.isSameOfMobilePhone;
@@ -157,13 +157,13 @@ function putProfile(req, res) {
 
 function putResetPassword(req, res) {
     // جلب المعلومات المرسلة
-    let userId = req.params.userId,
+    const userId = req.params.userId,
         userType = req.query.userType;
     // التحقق من كون المعلومات قد تمّ إرسالها فعلاً
     if (!userId || !userType) res.status(500).json("عذراً الرجاءإرسال معرّف مستخدم ، أو نوع الحساب أو كلاهما !!");
     else {
         // جلب كلمة المرور الجديدة
-        let newPassword = req.query.newPassword;
+        const newPassword = req.query.newPassword;
         // إعادة ضبط كلمة المرور
         const { resetUserPassword } = require("../models/users.model");
         resetUserPassword(userId, userType, newPassword).then((result) => {

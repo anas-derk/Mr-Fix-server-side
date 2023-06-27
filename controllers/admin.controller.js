@@ -1,6 +1,6 @@
 function getAdminLogin(req, res) {
     // جلب الإيميل وكلمة السر المطلوبين للتسجيل
-    let email = req.query.email,
+    const email = req.query.email,
         password = req.query.password;
     // التحقق من أنّ الإيميل وكلمة السر قد تم إرسالهم بالفعل
     if (email.length > 0 && password.length > 0) {
@@ -27,7 +27,7 @@ function getAdminLogin(req, res) {
 
 function getAdminInfo(req, res) {
     // جلب رقم معرّف المسؤول
-    let adminId = req.params.adminId;
+    const adminId = req.params.adminId;
     // إذا لم يُرسل رقم المعرّف فعلياً فإننا نرجع رسالة خطأ
     if (!adminId) {
         res.json("الرجاء إرسال معرّف للمسؤول !!!");
@@ -45,7 +45,7 @@ function getAdminInfo(req, res) {
 
 function getRequestSenderInfo(req, res) {
     // جلب معلومات الطلب
-    let requestId = req.params.requestId,
+    const requestId = req.params.requestId,
         userId = req.params.userId;
     // إذا لم يتم إرسال رقم معرّف المستخدم ورقم معرّف الطلب فإننا نرجع رسالة خطأ
     if (!requestId || !userId) {
@@ -64,7 +64,7 @@ function getRequestSenderInfo(req, res) {
 
 function putResetPassword(req, res) {
     // جلب رقم الهاتف
-    let mobilePhone = req.params.mobilePhone;
+    const mobilePhone = req.params.mobilePhone;
     // في حالة لم يتم إرسال رقم الموبايل فإننا نرجع رسالة خطأ
     if (!mobilePhone) {
         res.json("الرجاء إرسال رقم موبايل !!!");
@@ -82,7 +82,7 @@ function putResetPassword(req, res) {
 
 function postAddAds(req, res) {
     // جلب محتوى الإعلان المراد نشره
-    let content = req.body.content;
+    const content = req.body.content;
     // في حالة لم يتم إرسال المحتوى فعلياً فإننا نرجع رسالة خطأ
     if (!content) res.json("عذراً لا يوجد محتوى لهذا الإعلان ، الرجاء كتابة محتوى وإرسالها");
     else {
@@ -111,7 +111,7 @@ function getAllAds(req, res) {
 
 function deleteAds(req, res) {
     // جلب رقم معرّف الإعلان
-    let adsId = req.params.adsId;
+    const adsId = req.params.adsId;
     // في حالة رقم معرّف الإعلان غير موجود فإننا نرجع رسالة خطأ
     if (!adsId) res.json("عذراً يجب إرسال معرّف الإعلان حتى يتم حذفه");
     else {

@@ -40,9 +40,9 @@ async function createNewUser(userInfo) {
             return "عذراً لا يمكن إنشاء الحساب لأنه موجود مسبقاً !!";
         } else {
             // تشفير كلمة المرور بما أنّ المستخدم غير موجود مسبقاً
-            let encrypted_password = await bcrypt.hash(userInfo.password, 10);
+            const encrypted_password = await bcrypt.hash(userInfo.password, 10);
             // إنشاء مستخدم جديد في جدول المستخدمين
-            let newUser = new userModel({
+            const newUser = new userModel({
                 firstAndLastName: userInfo.firstAndLastName,
                 email: userInfo.email,
                 mobilePhone: userInfo.mobilePhone,
@@ -71,14 +71,14 @@ async function isUserAccountExist(email) {
         // الاتصال بقاعدة البيانات
         await mongoose.connect(DB_URL);
         // التحقق من أن المستخدم موجود في جدول المستخدمين
-        let user = await mongoose.models.user.findOne({ email });
+        const user = await mongoose.models.user.findOne({ email });
         if (user) {
             // في حالة كان موجوداً ، نقطع الاتصال بقاعدة البيانات ونعيد بيانات هذا المستخدم المطلوبة فقط
             await mongoose.disconnect();
             return { userId: user._id, userType: "user" };
         }
         // في حالة لم يكن موجوداً في جدول المستخدمين عندها نبحث في جدول المسؤولين
-        let admin = await mongoose.models.admin.findOne({ email });
+        const admin = await mongoose.models.admin.findOne({ email });
         if (admin) {
             // في حالة كان موجوداً ، نقطع الاتصال بقاعدة البيانات ونعيد بيانات هذا المستخدم المطلوبة فقط
             await mongoose.disconnect();
@@ -98,7 +98,7 @@ async function login(text, password) {
         // الاتصال بقاعدة البيانات
         await mongoose.connect(DB_URL);
         // التحقق من كون الحساب موجود في قاعدة البيانات أم لا عن طريق البحث عن إيميل مطابق أو رقم هاتف مطابق
-        let user = await userModel.findOne({
+        const user = await userModel.findOne({
             $or: [
                 {
                     email: text
@@ -111,7 +111,7 @@ async function login(text, password) {
         // التحقق من كون يوجد مستخدم فعلياً أي يوجد كائن يحوي بيانات المستخدم
         if (user) {
             // التحقق من كلمة السر صحيحة أم لا لأنّ المستخدم موجود
-            let isTruePassword = await bcrypt.compare(password, user.password);
+            const isTruePassword = await bcrypt.compare(password, user.password);
             // قطع الاتصال بقاعدة البيانات
             await mongoose.disconnect();
             // في حالة كلمة السر صحيحة نعيد معرّف المستخدم أو نعيد رسالة خطأ في حالة لم تكن صحيحة
@@ -120,7 +120,7 @@ async function login(text, password) {
         }
         else {
             // في حالة لم يكن هنالك مستخدم لديه نفس الإيميل أو كلمة السر فإننا نقطع الاتصال بقاعدة البيانات ونعيد رسالة خطأ
-            mongoose.disconnect();
+            await mongoose.disconnect();
             return "عذراً ، الإيميل أو رقم الهاتف خاطئ أو كلمة السر خاطئة";
         }
     }
@@ -136,7 +136,7 @@ async function getUserInfo(userId) {
         // الاتصال بقاعدة البيانات
         await mongoose.connect(DB_URL);
         // التحقق من كون المستخدم موجود في قاعدة البيانات عن طريق معرّفه
-        let user = await userModel.findById(userId);
+        const user = await userModel.findById(userId);
         // قطع الاتصال بقاعدة البيانات وفي حالة كان موجوداً نعيد بيانات وإلا نعيد رسالة خطأ
         await mongoose.disconnect();
         if (user) return user;
@@ -164,7 +164,7 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                 // في حالة لم يكن هنالك إيميل مطابق ، نتأكد من كون كلمة السر قد تمّ إرسالها من أجل تغييرهاأم لا
                 if (newUserData.password !== "") {
                     // تشفير كلمة السر
-                    let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                    const newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
                     // تعديل البيانات المرسلة فقط أي بدون رقم الهاتف
                     await userModel.updateOne({ _id: userId }, {
                         firstAndLastName: newUserData.firstAndLastName,
@@ -201,7 +201,7 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                 // التحقق من أنّ السر غير مرسلة كي لا يتم تعديلها مع بيانات المستخدم
                 if (newUserData.password !== "") {
                     // تشفير كلمة السر
-                    let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                    const newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
                     // تعديل بيانات المستخدم بدون الإيميل
                     await userModel.updateOne({ _id: userId }, {
                         firstAndLastName: newUserData.firstAndLastName,
@@ -246,7 +246,7 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                 // التحقق من أنّ كلمة السر قد تمّ إرسالها من أجل تغييرها مع بيانات المستخدم
                 if (newUserData.password !== "") {
                     // تشفير كلمة السر
-                    let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                    const newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
                     // تعديل بيانات المستخدم كاملة
                     await userModel.updateOne({ _id: userId }, {
                         firstAndLastName: newUserData.firstAndLastName,
@@ -278,7 +278,7 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
             // التحقق من أنّه قد تمّ إرسال كلمة السر لتعديلها
             if (newUserData.password !== "") {
                 // تشفير كلمة السر
-                let newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                const newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
                 // تعديل بيانات السمتخدم بدون الإيميل أو رقم الموبايل
                 await userModel.updateOne({ _id: userId }, {
                     firstAndLastName: newUserData.firstAndLastName,
@@ -314,7 +314,7 @@ async function resetUserPassword(userId, userType, newPassword) {
         // الاتصال بقاعدة البيانات
         await mongoose.connect(DB_URL);
         // تشفير كلمة السر
-        let newEncryptedPassword = await bcrypt.hash(newPassword, 10);
+        const newEncryptedPassword = await bcrypt.hash(newPassword, 10);
         // التحقق من كون نوع المستخدم هو مستخدم عادي
         if (userType == "user") {
             // إعادة تعيين كلمة السر من خلال تعديل بيانات المستخدم في جدول المستخدمين ومن ثمّ إعادة رسالة نجاح
