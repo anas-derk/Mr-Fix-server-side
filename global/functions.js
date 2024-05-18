@@ -11,7 +11,7 @@ function isNumber(input) {
 }
 
 function isValidPassword(password) {
-    return password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/);
+    return password.length >= 8;
 }
 
 function isValidName(name) {
