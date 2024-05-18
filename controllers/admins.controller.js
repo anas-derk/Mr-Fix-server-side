@@ -1,27 +1,28 @@
-function getAdminLogin(req, res) {
-    // جلب الإيميل وكلمة السر المطلوبين للتسجيل
-    const email = req.query.email,
-        password = req.query.password;
-    // التحقق من أنّ الإيميل وكلمة السر قد تم إرسالهم بالفعل
-    if (email.length > 0 && password.length > 0) {
-        // التحقق من أنّ الإيميل المرسل هو إيميل صالح
-        const { isEmail } = require("../global/functions");
-        if (isEmail(email)) {
-            // طلب تسجيل الدخول بما أنّنا تأكدنا من انّ الإيميل وكلمة السر قد تمّ إرسالها فعلاً بالإضافة لأنّ الإيميل صالح
-            const { adminLogin } = require("../models/admin.model");
-            adminLogin(email, password).then((result) => {
-                // إرجاع النتيجة للمستخدم
-                res.json(result);
-            })
-            // إرجاع رسالة خطأ في حالة حدثت مشكلة أثناء عملية تسجيل الدخول
-                .catch((err) => res.json(err));
-        } else {
-            // إرجاع رسالة خطأ في حالة الإيميل غير صالح
-            res.status(500).json("عذراً الإيميل الذي أرسلته غير صالح !!!");
+const { getResponseObject } = require("../global/functions");
+
+const adminsOPerationsManagmentFunctions = require("../models/admins.model");
+
+const { sign } = require("jsonwebtoken");
+
+
+async function getAdminLogin(req, res) {
+    try{
+        const result = await adminsOPerationsManagmentFunctions.adminLogin(emailAndPassword.email.trim().toLowerCase(), emailAndPassword.password);
+        if (!result.error) {
+            res.json({
+                ...result,
+                data: {
+                    token: sign(result.data, process.env.secretKey, {
+                        expiresIn: "1h",
+                    }),
+                }
+            });
+            return;
         }
-    } else {
-        // إرجاع رسالة خطأ في حالة لم يتم إرسال الإيميل أو كلمة السر أو كلاهما
-        res.status(500).json("عذراً لم يتم إرسال الإيميل أو كلمة السر أو كلاهما !!");
+        res.json(result);
+    }
+    catch(err) {
+        res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
     }
 }
 
@@ -33,7 +34,7 @@ function getAdminInfo(req, res) {
         res.json("الرجاء إرسال معرّف للمسؤول !!!");
     } else {
         // جلب معلومات المسؤول
-        const { getAdminInfo } = require("../models/admin.model");
+        const { getAdminInfo } = require("../models/admins.model");
         getAdminInfo(adminId).then((result) => {
             // إرجاع النتيجة للمستخدم
             res.json(result);
@@ -52,7 +53,7 @@ function getRequestSenderInfo(req, res) {
         res.json("الرجاء إرسال معرّف المستخدم ومعرّف !!!");
     } else {
         // جلب معلومات مُرسل الطلب
-        const { getRequestSenderInfo } = require("../models/admin.model");
+        const { getRequestSenderInfo } = require("../models/admins.model");
         getRequestSenderInfo(requestId, userId).then((result) => {
             // إعادة النتيجة للمستخدم
             res.json(result);
@@ -70,7 +71,7 @@ function putResetPassword(req, res) {
         res.json("الرجاء إرسال رقم موبايل !!!");
     } else {
         // إعادة ضبط طلب السر من خلال المسؤول لتصبح نفس رقم الهاتف المُسجل
-        const { resetPasswordForUserFromAdmin } = require("../models/admin.model");
+        const { resetPasswordForUserFromAdmin } = require("../models/admins.model");
         resetPasswordForUserFromAdmin(mobilePhone).then((result) => {
             // إرجاع النتيجة للمستخدم
             res.json(result);

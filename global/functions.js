@@ -10,6 +10,14 @@ function isNumber(input) {
     return isNaN(input.value);
 }
 
+function isValidPassword(password) {
+    return password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/);
+}
+
+function isValidName(name) {
+    return name.match(/^([\u0600-\u06FF\s]+|[a-zA-Z\s]+)$/);
+}
+
 function transporterObj() {
     // إنشاء ناقل بيانات لسيرفر SMTP مع إعداده 
     const transporter = createTransport({
@@ -75,9 +83,66 @@ function sendEmail(data) {
     });
 }
 
+function getResponseObject(msg, isError, data) {
+    return {
+        msg,
+        error: isError,
+        data,
+    }
+}
+
+function checkIsExistValueForFieldsAndDataTypes(fieldNamesAndValuesAndDataTypes) {
+    for (let fieldnameAndValueAndDataType of fieldNamesAndValuesAndDataTypes) {
+        if (fieldnameAndValueAndDataType.isRequiredValue) {
+            if (!fieldnameAndValueAndDataType.fieldValue) 
+                return getResponseObject(
+                    `Invalid Request, Please Send ${fieldnameAndValueAndDataType.fieldName} Value !!`,
+                    true,
+                    {}
+                );
+        }
+        if (fieldnameAndValueAndDataType.fieldValue) {
+            if (fieldnameAndValueAndDataType.dataType === "number" && isNaN(fieldnameAndValueAndDataType.fieldValue)) {
+                return getResponseObject(
+                    `Invalid Request, Please Fix Type Of ${fieldnameAndValueAndDataType.fieldName} ( Required: ${fieldnameAndValueAndDataType.dataType} ) !!`,
+                    true,
+                    {}
+                );
+            } 
+            if (fieldnameAndValueAndDataType.dataType === "ObjectId" && !Types.ObjectId.isValid(fieldnameAndValueAndDataType.fieldValue))  {
+                return getResponseObject(
+                    `Invalid Request, Please Fix Type Of ${fieldnameAndValueAndDataType.fieldName} ( Required: ${fieldnameAndValueAndDataType.dataType} ) !!`,
+                    true,
+                    {}
+                );
+            }
+            if (typeof fieldnameAndValueAndDataType.fieldValue !== fieldnameAndValueAndDataType.dataType && fieldnameAndValueAndDataType.dataType !== "ObjectId")
+                return getResponseObject(
+                    `Invalid Request, Please Fix Type Of ${fieldnameAndValueAndDataType.fieldName} ( Required: ${fieldnameAndValueAndDataType.dataType} ) !!`,
+                    true,
+                    {}
+                );
+        }
+    }
+    return getResponseObject("Success In Check Is Exist Value For Fields And Data Types !!", false, {});
+}
+
+function validateIsExistValueForFieldsAndDataTypes(fieldsDetails, res, nextFunc) {
+    const checkResult = checkIsExistValueForFieldsAndDataTypes(fieldsDetails);
+    if (checkResult.error) {
+        res.status(400).json(checkResult);
+        return;
+    }
+    nextFunc();
+}
+
 module.exports = {
     isEmail,
-    sendCodeToUserEmail,
     isNumber,
+    isValidPassword,
+    isValidName,
+    sendCodeToUserEmail,
     sendEmail,
+    validateIsExistValueForFieldsAndDataTypes,
+    getResponseObject,
 }
