@@ -4,7 +4,7 @@ const requestsOPerationsManagmentFunctions = require("../models/requests.model")
 
 const { sendEmail } = require("../global/functions");
 
-function postServiceRequest(req, res) {
+async function postServiceRequest(req, res) {
     try{
         // تعريف مصفوفة صور الطلب 
         let requestImages = [];
@@ -18,7 +18,7 @@ function postServiceRequest(req, res) {
             files: requestImages,
         };
         // إنشاء طلب جديد
-        const result = requestsOPerationsManagmentFunctions.createNewRequest(requestInfo);
+        const result = await requestsOPerationsManagmentFunctions.createNewRequest(requestInfo);
         res.json({
             msg: "تمّ طلب الخدمة بنجاح ، سوف يتم التواصل معك قريباً جداً",
             error: false,
