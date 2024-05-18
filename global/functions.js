@@ -1,3 +1,7 @@
+const { createTransport } = require("nodemailer");
+
+const CodeGenerator = require('node-code-generator');
+
 function isEmail(email) {
     return email.match(/[^\s@]+@[^\s@]+\.[^\s@]+/);
 }
@@ -7,13 +11,12 @@ function isNumber(input) {
 }
 
 function transporterObj() {
-    const nodemailer = require('nodemailer');
     // إنشاء ناقل بيانات لسيرفر SMTP مع إعداده 
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
+    const transporter = createTransport({
+        service: "gmail",
         auth: {
-            user: "mrfix.help@gmail.com",
-            pass: "suwtluglgrxpumsb",
+            user: process.env.BUSSINESS_EMAIL,
+            pass: process.env.BUSSINESS_PASSWORD,
         }
     });
     return transporter;
@@ -21,13 +24,12 @@ function transporterObj() {
 
 function sendCodeToUserEmail(email) {
     // استدعاء مكتبة توليد شيفرة خاصة بإعادة ضبط كلمة السر
-    const CodeGenerator = require('node-code-generator');
     const generator = new CodeGenerator();
     // توليد الكود المراد إرساله إلى الإيميل وفق نمط محدد
     const generatedCode = generator.generateCodes("###**#");
     // إعداد الرسالة قبل إرسالها
     const mailConfigurations = {
-        from: "mrfix.help@gmail.com",
+        from: process.env.BUSSINESS_EMAIL,
         to: email,
         subject: "رسالة التحقق من البريد الالكتروني الخاص بحسابك على موقع مستر فيكس",
         text: `مرحباً بك في خدمة التحقق من أنك صاحب البريد الالكتروني في مستر فيكس \n الكود هو: ${generatedCode}`,
@@ -56,7 +58,7 @@ function sendEmail(data) {
     // إعداد الرسالة قبل إرسالها
     const mailConfigurations = {
         from: senderRequestInfo.email,
-        to: "mrfix.help@gmail.com",
+        to: process.env.BUSSINESS_EMAIL,
         subject: "New Request",
         text,
         attachments,
