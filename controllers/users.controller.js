@@ -1,48 +1,18 @@
-function createNewUser(req, res) {
-    // جلب الداتا المطلوبة المرسلة مع الطلب
-    const firstAndLastName = req.body.firstAndLastName,
-        email = req.body.email,
-        mobilePhone = req.body.mobilePhone,
-        password = req.body.password,
-        gender = req.body.gender,
-        birthday = req.body.birthday,
-        city = req.body.city,
-        address = req.body.address;
-    // التحقق فيما إذا كانت الحقول المرسلة موجودة أم لم يتم إرسالها
-    if (firstAndLastName.length > 0 && mobilePhone.length > 0
-        && password.length > 0 && gender.length > 0 && birthday.length > 0
-        && city.length > 0 && address.length > 0) {
-        if (email.length > 0) {
-            const { isEmail } = require("../global/functions");
-            // التحقق من كون الحقل email أنه إيميل أم لا
-            if (isEmail(email)) {
-                const { createNewUser } = require("../models/users.model");
-                // إنشاء حساب
-                createNewUser(req.body).then((msg) => {
-                    // إعادة الرسالة إلى المستخدم كاستجابة
-                    res.json(msg);
-                })
-                    // في حالة حدث خطأ إعادته للمستخدم
-                    .catch((err) => res.json(err));
-            }
-            else {
-                // إذا لم يكن الإيميل المرسل صالح إعادة رسالة خطأ
-                res.status(500).json("عذراً ، الإيميل المرسل غير صالح");
-            }
-        } else {
-            const { createNewUser } = require("../models/users.model");
-            // إنشاء حساب
-            createNewUser(req.body).then((msg) => {
-                // إعادة الرسالة إلى المستخدم كاستجابة
-                res.json(msg);
-            })
-            // في حالة حدث خطأ إعادته للمستخدم
-            .catch((err) => res.json(err));
-        }
+const { getResponseObject } = require("../global/functions");
+
+const usersOPerationsManagmentFunctions = require("../models/users.model");
+
+const { sign } = require("jsonwebtoken");
+
+async function createNewUser(req, res) {
+    try{
+        // جلب الداتا المطلوبة المرسلة مع الطلب
+        const userData = req.body;
+        // إنشاء حساب
+        res.json(await usersOPerationsManagmentFunctions.createNewUser(req.body));
     }
-    else {
-        // في حالة أحد الحقول غير مرسلة عندها نعيد للمستخدم رسالة خطأ
-        res.status(500).json("عذراً أحد الحقول غير موجودة ، الرجاء إرسال كل الحقول");
+    catch(err) {
+        res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
     }
 }
 
@@ -91,87 +61,60 @@ function getForgetPassword(req, res) {
     }
 }
 
-function login(req, res) {
-    // جلب بيانات تسجيل الدخول الخاصة بالمستخدم
-    const text = req.query.text,
-        password = req.query.password;
-    // التحقق من أن النص وكلمة السر قد تمّ إرسالها
-    if (text.length > 0 && password.length > 0) {
-        // التحقق من البيانات قبل إرسالها لقاعدة البيانات ( هل النص المرسل هو إيميل صالح أو رقم صالح )
-        const { isEmail, isNumber } = require("../global/functions");
-        if (isEmail(text) || isNumber(text)) {
-            // في حالة كان إيميل صالح أو رقم صالح فإننا نقوم بعملية تسجيل الدخول
-            const { login } = require("../models/users.model");
-            login(text, password).then((result) => {
-                // إعادة النتيجة للمستخدم
-                res.json(result);
-            })
-                // إعادة رسالة خطأ في حالة حدث خطأ أثناء عملية تسجيل الدخول
-                .catch((err) => res.json(err));
-        } else {
-            // إعادة رسالة خطأ في حالة كان النص ليس إيميل أو رقم هاتف صالح
-            res.status(500).json("خطأ ، عذراً النص الذي أرسلته ليس إيميل أو رقم صالح");
+async function login(req, res) {
+    try{
+        // جلب بيانات تسجيل الدخول الخاصة بالمستخدم
+        const text = req.query.text,
+            password = req.query.password;
+        // في حالة كان إيميل صالح أو رقم صالح فإننا نقوم بعملية تسجيل الدخول
+        const result = await usersOPerationsManagmentFunctions.login(text, password);
+        if (!result.error) {
+            const token = sign(result.data, process.env.secretKey, {
+                expiresIn: "1h",
+            });
+            res.json({
+                msg: result.msg,
+                error: result.error,
+                data: {
+                    ...result.data,
+                    token,
+                },
+            });
+            return;
         }
-    } else {
-        // في حالة لم يتم إرسال قيم أحد الحقول أو كلاهما عندها نرسل رسالة خطأ للمستخدم
-        res.status(500).json("عذراً ، أحد الحقول لم يتم إرسالها");
+        res.json(result);
+    }
+    catch(err) {
+        res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
     }
 }
 
-function getUserInfo(req, res) {
-    // جلب رقم معرّف المستخدم
-    const userId = req.params.userId;
-    // التحقق من أنه قد تمّ إرساله فعلاً
-    if (!userId) res.status(500).json("عذراً ، يجب إرسال رقم معرّف المستخدم");
-    else {
-        // جلب معلومات المستخدم
-        const { getUserInfo } = require("../models/users.model");
-        getUserInfo(userId).then((result) => {
-            // إعادة النتيجة للمستخدم
-            res.json(result);
-        })
-            // إعادة رسالة الخطأ في حالة حدثت مشكلة أثناء جلب بيانات المستخدم
-            .catch((err) => res.json(err));
+async function getUserInfo(req, res) {
+    try{
+        res.json(await usersOPerationsManagmentFunctions.getUserInfo(req.data._id));
+    }
+    catch(err) {
+        res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
     }
 }
 
-function putProfile(req, res) {
-    // جلب المعلومات المرسلة
-    const userId = req.params.userId,
-        newUserData = req.body,
-        isSameOfEmail = req.query.isSameOfEmail;
-    isSameOfMobilePhone = req.query.isSameOfMobilePhone;
-    // التحقق من أنّ رقم معرّف المستخدم قد تمّ إرساله فعلاً
-    if (!userId) res.status(500).json("Sorry, Please Send User Id !!");
-    else {
-        // تعديل بيانات المستخدم
-        const { updateProfile } = require("../models/users.model");
-        updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobilePhone).then((result) => {
-            // إعادة النتيجة للمستخدم
-            res.json(result);
-        })
-            // إعادة رسالة الخطأ في حالة حدثت مشكلة بعملية تعديل بيانات المستخدم
-            .catch((err) => res.json(err));
+async function putProfile(req, res) {
+    try{
+        res.json(await usersOPerationsManagmentFunctions.updateProfile(req.data._id, req.body, isSameOfEmail, req.query.isSameOfEmail, req.query.isSameOfMobilePhone));
+    }
+    catch(err) {
+        res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
     }
 }
 
-function putResetPassword(req, res) {
-    // جلب المعلومات المرسلة
-    const userId = req.params.userId,
-        userType = req.query.userType;
-    // التحقق من كون المعلومات قد تمّ إرسالها فعلاً
-    if (!userId || !userType) res.status(500).json("عذراً الرجاءإرسال معرّف مستخدم ، أو نوع الحساب أو كلاهما !!");
-    else {
-        // جلب كلمة المرور الجديدة
-        const newPassword = req.query.newPassword;
-        // إعادة ضبط كلمة المرور
-        const { resetUserPassword } = require("../models/users.model");
-        resetUserPassword(userId, userType, newPassword).then((result) => {
-            // إعادة النتيجة للمستخدم
-            res.json(result);
-        })
-            // إعادة رسالة الخطأ للمستخدم في حالة حدثت مشكلة أثناء عملية إعادة ضبط كلمة المرور
-            .catch((err) => res.json(err));
+async function putResetPassword(req, res) {
+    try{
+        const userTypeAndNewPassword = req.query;
+        res.json(await usersOPerationsManagmentFunctions.resetUserPassword(req.params.userId, userTypeAndNewPassword.userType, userTypeAndNewPassword.newPassword));
+
+    }
+    catch(err) {
+        res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
     }
 }
 

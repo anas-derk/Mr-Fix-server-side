@@ -1,14 +1,10 @@
-// استيراد ملف رابط قاعدة البيانات
+// استيراد كائن ال userModel
 
-const DB_URL = require("../global/DB_URL");
-
-// استيراد كائن ال mongoose + userModel
-
-const { userModel } = require("./all.models");
+const { userModel, adminModel } = require("./all.models");
 
 // استيراد مكتبة تشفير كلمة المرور
 
-const bcrypt = require("bcryptjs");
+const { compare, hash } = require("bcryptjs");
 
 // تعريف دالة إنشاء حساب مستخدم جديد
 
@@ -34,24 +30,31 @@ async function createNewUser(userInfo) {
         }
         // التحقق من أنّ المستخدم موجود بعد البحث عنه في قاعدة البيانات
         if (user) {
-            return "عذراً لا يمكن إنشاء الحساب لأنه موجود مسبقاً !!";
-        } else {
-            // تشفير كلمة المرور بما أنّ المستخدم غير موجود مسبقاً
-            const encrypted_password = await bcrypt.hash(userInfo.password, 10);
-            // إنشاء مستخدم جديد في جدول المستخدمين
-            const newUser = new userModel({
-                firstAndLastName: userInfo.firstAndLastName,
-                email: userInfo.email,
-                mobilePhone: userInfo.mobilePhone,
-                password: encrypted_password,
-                gender: userInfo.gender,
-                birthday: userInfo.birthday,
-                city: userInfo.city,
-                address: userInfo.address,
-            });
-            // حفظ المستخدم الجديد في جدول المستخدمين
-            await newUser.save();
-            return "تم بنجاح إنشاء الحساب";
+            return {
+                msg: "عذراً لا يمكن إنشاء الحساب لأنه موجود مسبقاً !!",
+                error: true,
+                data: {}
+            };
+        }
+        // تشفير كلمة المرور بما أنّ المستخدم غير موجود مسبقاً
+        const encrypted_password = await hash(userInfo.password, 10);
+        // إنشاء مستخدم جديد في جدول المستخدمين
+        const newUser = new userModel({
+            firstAndLastName: userInfo.firstAndLastName,
+            email: userInfo.email,
+            mobilePhone: userInfo.mobilePhone,
+            password: encrypted_password,
+            gender: userInfo.gender,
+            birthday: userInfo.birthday,
+            city: userInfo.city,
+            address: userInfo.address,
+        });
+        // حفظ المستخدم الجديد في جدول المستخدمين
+        await newUser.save();
+        return {
+            msg: "تم بنجاح إنشاء الحساب",
+            error: false,
+            data: {}
         }
     }
     catch (err) {
@@ -63,13 +66,13 @@ async function createNewUser(userInfo) {
 async function isUserAccountExist(email) {
     try {
         // التحقق من أن المستخدم موجود في جدول المستخدمين
-        const user = await mongoose.models.user.findOne({ email });
+        const user = await userModel.findOne({ email });
         if (user) {
             // في حالة كان موجوداً ، نقطع الاتصال بقاعدة البيانات ونعيد بيانات هذا المستخدم المطلوبة فقط
             return { userId: user._id, userType: "user" };
         }
         // في حالة لم يكن موجوداً في جدول المستخدمين عندها نبحث في جدول المسؤولين
-        const admin = await mongoose.models.admin.findOne({ email });
+        const admin = await userModel.findOne({ email });
         if (admin) {
             // في حالة كان موجوداً ، نقطع الاتصال بقاعدة البيانات ونعيد بيانات هذا المستخدم المطلوبة فقط
             return { userId: admin._id, userType: "admin" };
@@ -98,14 +101,27 @@ async function login(text, password) {
         // التحقق من كون يوجد مستخدم فعلياً أي يوجد كائن يحوي بيانات المستخدم
         if (user) {
             // التحقق من كلمة السر صحيحة أم لا لأنّ المستخدم موجود
-            const isTruePassword = await bcrypt.compare(password, user.password);
+            const isTruePassword = await compare(password, user.password);
             // في حالة كلمة السر صحيحة نعيد معرّف المستخدم أو نعيد رسالة خطأ في حالة لم تكن صحيحة
-            if (isTruePassword) return user._id;
-            return "عذراً ، الإيميل أو رقم الهاتف خاطئ أو كلمة السر خاطئة";
+            if (isTruePassword) {
+                return {
+                    msg: "عملية تسجيل الدخول تمت بنجاح !!",
+                    error: false,
+                    data: {
+                        _id: user._id
+                    }
+                }
+            }
+            return {
+                msg: "عذراً ، الإيميل أو رقم الهاتف خاطئ أو كلمة السر خاطئة",
+                error: true,
+                data: {}
+            }
         }
-        else {
-            // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
-            return "عذراً ، الإيميل أو رقم الهاتف خاطئ أو كلمة السر خاطئة";
+        return {
+            msg: "عذراً ، الإيميل أو رقم الهاتف خاطئ أو كلمة السر خاطئة",
+            error: true,
+            data: {}
         }
     }
     catch (err) {
@@ -119,8 +135,18 @@ async function getUserInfo(userId) {
         // التحقق من كون المستخدم موجود في قاعدة البيانات عن طريق معرّفه
         const user = await userModel.findById(userId);
         // قطع الاتصال بقاعدة البيانات وفي حالة كان موجوداً نعيد بيانات وإلا نعيد رسالة خطأ
-        if (user) return user;
-        return "عذراً ، المستخدم غير موجود";
+        if (user) {
+            return {
+                msg: "عملية جلب بيانات المستخدم تمت بنجاح !!",
+                error: false,
+                data: user
+            }
+        }
+        return {
+            msg: "عذراً ، المستخدم غير موجود",
+            error: false,
+            data: user
+        }
     } catch (err) {
         // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
         throw Error(err);
@@ -135,7 +161,11 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
             // التحقق من أن المستخدم موجود عن طريق البحث في جدول المستخدمين عن إيميل مطابق
             user = await userModel.findOne({ email: newUserData.email });
             if (user) {
-                return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!";
+                return {
+                    msg: "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!",
+                    error: true,
+                    data: {}
+                }
             } else {
                 // في حالة لم يكن هنالك إيميل مطابق ، نتأكد من كون كلمة السر قد تمّ إرسالها من أجل تغييرهاأم لا
                 if (newUserData.password !== "") {
@@ -151,6 +181,11 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                         city: newUserData.city,
                         address: newUserData.address,
                     });
+                    return {
+                        msg: "عملية تحديث بيانات المستخدم تمت بنجاح !!",
+                        error: false,
+                        data: {}
+                    }
                 }
                 else {
                     // تعديل بيانات المستخدم لكن بدون كلمة السر ورقم الهاتف
@@ -162,6 +197,11 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                         city: newUserData.city,
                         address: newUserData.address,
                     });
+                    return {
+                        msg: "عملية تحديث بيانات المستخدم تمت بنجاح !!",
+                        error: false,
+                        data: {}
+                    }
                 }
             }
             // التحقق من أنّ الإيميل نفسه ورقم الموبايل ليس نفسه
@@ -169,8 +209,11 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
             // البحث في جدول المستخدمين عن مستخدم له نفس رقم الموبايل لأنه غير مسموح تكرار رقم الموبايل
             user = await userModel.findOne({ mobilePhone: newUserData.mobilePhone });
             if (user) {
-                await mongoose.disconnect();
-                return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!";
+                return {
+                    msg: "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!",
+                    error: true,
+                    data: {}
+                };
             } else {
                 // التحقق من أنّ السر غير مرسلة كي لا يتم تعديلها مع بيانات المستخدم
                 if (newUserData.password !== "") {
@@ -186,6 +229,11 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                         city: newUserData.city,
                         address: newUserData.address,
                     });
+                    return {
+                        msg: "عملية تحديث بيانات المستخدم تمت بنجاح !!",
+                        error: false,
+                        data: {}
+                    }
                 } else {
                     // تعديل بيانات المستخدم بدون الإيميل وكلمة السر
                     await userModel.updateOne({ _id: userId }, {
@@ -196,6 +244,11 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                         city: newUserData.city,
                         address: newUserData.address,
                     });
+                    return {
+                        msg: "عملية تحديث بيانات المستخدم تمت بنجاح !!",
+                        error: false,
+                        data: {}
+                    }
                 }
             }
         // التحقق من أنّ الإيميل ورقم الهاتف ليس نفسه
@@ -212,7 +265,11 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                 ]
             });
             if (user) {
-                return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!";
+                return {
+                    msg: "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!",
+                    error: true,
+                    data: {}
+                };
             } else {
                 // التحقق من أنّ كلمة السر قد تمّ إرسالها من أجل تغييرها مع بيانات المستخدم
                 if (newUserData.password !== "") {
@@ -229,6 +286,11 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                         city: newUserData.city,
                         address: newUserData.address,
                     });
+                    return {
+                        msg: "عملية تحديث بيانات المستخدم تمت بنجاح !!",
+                        error: false,
+                        data: {}
+                    }
                 } else {
                     // تعديل بيانات المستخدم كاملة بدون كلمة السر
                     await userModel.updateOne({ _id: userId }, {
@@ -240,6 +302,11 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                         city: newUserData.city,
                         address: newUserData.address,
                     });
+                    return {
+                        msg: "عملية تحديث بيانات المستخدم تمت بنجاح !!",
+                        error: false,
+                        data: {}
+                    }
                 }
             }
             // في حالة لم تكن من ضمن الاحتمالات السابقة أي لم يتم تعديل لا اإيميل ولا رقم الهاتف
@@ -257,6 +324,11 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                     city: newUserData.city,
                     address: newUserData.address,
                 });
+                return {
+                    msg: "عملية تحديث بيانات المستخدم تمت بنجاح !!",
+                    error: false,
+                    data: {}
+                }
             } else {
                 // تعديل بيانات المستخدم بدون الإيميل و رقم الموبايل وكلمة السر
                 await userModel.updateOne({ _id: userId }, {
@@ -266,6 +338,11 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                     city: newUserData.city,
                     address: newUserData.address,
                 });
+                return {
+                    msg: "عملية تحديث بيانات المستخدم تمت بنجاح !!",
+                    error: false,
+                    data: {}
+                }
             }
         }
     }
@@ -278,16 +355,24 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
 async function resetUserPassword(userId, userType, newPassword) {
     try {
         // تشفير كلمة السر
-        const newEncryptedPassword = await bcrypt.hash(newPassword, 10);
+        const newEncryptedPassword = await hash(newPassword, 10);
         // التحقق من كون نوع المستخدم هو مستخدم عادي
         if (userType == "user") {
             // إعادة تعيين كلمة السر من خلال تعديل بيانات المستخدم في جدول المستخدمين ومن ثمّ إعادة رسالة نجاح
             await userModel.updateOne({ _id: userId }, { password: newEncryptedPassword });
-            return "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!";
+            return {
+                msg: "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!",
+                error: false,
+                data: {}
+            }
         }
         // إعادة تعيين كلمة السر من خلال تعديل بيانات المستخدم في جدول المسؤولين في حالة لم يكن مستخدم عادي ومن ثمّ إعادة رسالة نجاح
-        await mongoose.models.admin.updateOne({ _id: userId }, { password: newEncryptedPassword });
-        return "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!";
+        await adminModel.updateOne({ _id: userId }, { password: newEncryptedPassword });
+        return {
+            msg: "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!",
+            error: false,
+            data: {}
+        }
     } catch (err) {
         // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
         throw Error(err);
