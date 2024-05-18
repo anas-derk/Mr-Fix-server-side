@@ -2,10 +2,12 @@ const adsRouter = require("express").Router();
 
 const adsController = require("../controllers/ads.controller");
 
-adsRouter.post("/ads/add-ads", adsController.postAddAd);
+const { validateJWT } = require("../middlewares/global.middlewares");
 
-adsRouter.get("/ads/all-ads", adsController.getAllAds);
+adsRouter.post("/add-ad", adsController.postAddAd);
 
-adsRouter.delete("/ads/delete-ads/:adsId", adsController.deleteAd);
+adsRouter.get("/all-ads", adsController.getAllAds);
+
+adsRouter.delete("/:adId", adsController.deleteAd);
 
 module.exports = adsRouter;

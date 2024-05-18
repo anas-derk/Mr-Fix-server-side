@@ -4,7 +4,6 @@ const adsOPerationsManagmentFunctions = require("../models/ads.model");
 
 async function postAddAd(req, res) {
     try{
-        // في حالة تمّ إرسال محتوى الإعلان فإننا نقوم بحفظ الإعلان في قاعدة البيانات
         res.json(await adsOPerationsManagmentFunctions.addNewAd(req.body.content));
     }
     catch(err) {

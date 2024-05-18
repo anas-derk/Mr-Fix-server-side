@@ -2,11 +2,35 @@ const adminsRouter = require("express").Router();
 
 const adminsController = require("../controllers/admins.controller");
 
-adminsRouter.get("/login", adminsController.getAdminLogin);
+const { validateIsExistValueForFieldsAndDataTypes } = require("../global/functions");
 
-adminsRouter.get("/admin-info/:adminId", adminsController.getAdminInfo);
+const { validateJWT, validateEmail, validatePassword } = require("../middlewares/global.middlewares");
 
-adminsRouter.get("/requests/:requestId/users/:userId", adminsController.getRequestSenderInfo);
+adminsRouter.get("/login",
+    async (req, res, next) => {
+        const emailAndPassword = req.query;
+        validateIsExistValueForFieldsAndDataTypes([
+            { fieldName: "Email", fieldValue: emailAndPassword.email, dataType: "string", isRequiredValue: true },
+            { fieldName: "Password", fieldValue: emailAndPassword.password, dataType: "string", isRequiredValue: true },
+        ], res, next);
+    },
+    (req, res, next) => validateEmail(req.query.email, res, next),
+    (req, res, next) => validatePassword(req.query.password, res, next),
+    adminsController.getAdminLogin
+);
+
+adminsRouter.get("/user-info", validateJWT, adminsController.getAdminInfo);
+
+adminsRouter.get("/requests/:requestId/users/:userId",
+    async (req, res, next) => {
+        const requestAndUserIds = req.params;
+        validateIsExistValueForFieldsAndDataTypes([
+            { fieldName: "Request Id", fieldValue: requestAndUserIds.requestId, dataType: "ObjectId", isRequiredValue: true },
+            { fieldName: "User Id", fieldValue: requestAndUserIds.userId, dataType: "ObjectId", isRequiredValue: true },
+        ], res, next);
+    },
+    adminsController.getRequestSenderInfo
+);
 
 adminsRouter.put("/reset-password/:mobilePhone", adminsController.putResetPassword);
 
