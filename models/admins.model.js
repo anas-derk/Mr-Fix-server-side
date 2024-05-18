@@ -67,23 +67,31 @@ async function getAdminInfo(adminId) {
     }
 }
 
-async function getRequestSenderInfo(requestId, userId) {
+async function getRequestSenderInfo(adminId, requestId, userId) {
     try {
-        // التحقق من أنّ الطلب موجود عن طريق البحث في جدول الطلبات عن رقم معرّف موجود مسبقاً
-        const request = await requestModel.findById(requestId);
-        // في حالة لم يكن هنالك طلب سابق عندها نرجع رسالة خطأ
-        if (!request) {
+        const admin = await adminModel.findById(adminId);
+        if (admin) {
+            // التحقق من أنّ الطلب موجود عن طريق البحث في جدول الطلبات عن رقم معرّف موجود مسبقاً
+            const request = await requestModel.findById(requestId);
+            // في حالة لم يكن هنالك طلب سابق عندها نرجع رسالة خطأ
+            if (!request) {
+                return {
+                    msg: "عذراً ، لا يوجد طلب بهذا المعرّف !!",
+                    error: true,
+                    data: {}
+                }
+            }
+            // في حالة كان يوجد طلب بهذا المعرّف فأننا نبحث عن مستخدم في جدول المستخدمين له معرّف مطابق للرقم المُرسل
             return {
-                msg: "عذراً ، لا يوجد طلب بهذا المعرّف !!",
-                error: true,
-                data: {}
+                msg: "عملية جلب معلومات مرسل الطلب تمت بنجاح !!",
+                error: false,
+                data: await userModel.findById(userId)
             }
         }
-        // في حالة كان يوجد طلب بهذا المعرّف فأننا نبحث عن مستخدم في جدول المستخدمين له معرّف مطابق للرقم المُرسل
         return {
-            msg: "عملية جلب معلومات مرسل الطلب تمت بنجاح !!",
-            error: false,
-            data: await userModel.findById(userId)
+            msg: "عذراً ، حساب المسؤول غير موجود",
+            error: true,
+            data: {}
         }
     } catch (err) {
         // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
@@ -91,28 +99,36 @@ async function getRequestSenderInfo(requestId, userId) {
     }
 }
 
-async function resetPasswordForUserFromAdmin(mobilePhone) {
+async function resetPasswordForUserFromAdmin(adminId, mobilePhone) {
     try {
-        // التحقق من أنّّه يوجد مستخدم له نفس رقم الموبايل في جدول المستخدمين
-        const user = await userModel.findOne({ mobilePhone });
-        // إذا لم يكن هنالك مستخدم مطابق عندها نرجع رسالة خطأ
-        if (!user) {
+        const admin = await adminModel.findById(adminId);
+        if (admin) {
+            // التحقق من أنّّه يوجد مستخدم له نفس رقم الموبايل في جدول المستخدمين
+            const user = await userModel.findOne({ mobilePhone });
+            // إذا لم يكن هنالك مستخدم مطابق عندها نرجع رسالة خطأ
+            if (!user) {
+                return {
+                    msg: "عذراً ، الحساب غير موجود",
+                    error: true,
+                    data: {}
+                }
+            }
+            // قي حالة كان يوجد مستخدم مطابق فإننا نقوم بتشفير رقم الهاتف لجعله هو نفسه كلمة السر
+            const newEncryptedPassword = await hash(mobilePhone, 10);
+            // تعديل كلمة السر الخاصة بالمستخدم الذي له نفس رقم الموبايل لتصبح نفسها رقم الموبايل
+            await userModel.updateOne({ mobilePhone }, {
+                password: newEncryptedPassword,
+            });
+            // في حالة نجاح العملية فإننا نعيد رسالة نجاح
             return {
-                msg: "عذراً ، الحساب غير موجود",
-                error: true,
+                msg: "تهانينا ، لقد تمّ إعادة تعيين كلمة السر لتصبح على نفس رقم الموبايل",
+                error: false,
                 data: {}
             }
         }
-        // قي حالة كان يوجد مستخدم مطابق فإننا نقوم بتشفير رقم الهاتف لجعله هو نفسه كلمة السر
-        const newEncryptedPassword = await hash(mobilePhone, 10);
-        // تعديل كلمة السر الخاصة بالمستخدم الذي له نفس رقم الموبايل لتصبح نفسها رقم الموبايل
-        await userModel.updateOne({ mobilePhone }, {
-            password: newEncryptedPassword,
-        });
-        // في حالة نجاح العملية فإننا نعيد رسالة نجاح
         return {
-            msg: "تهانينا ، لقد تمّ إعادة تعيين كلمة السر لتصبح على نفس رقم الموبايل",
-            error: false,
+            msg: "عذراً ، حساب المسؤول غير موجود",
+            error: true,
             data: {}
         }
     } catch (err) {

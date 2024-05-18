@@ -1,4 +1,4 @@
-const { getResponseObject, isEmail, isValidPassword } = require("../global/functions");
+const { getResponseObject, isEmail, isValidPassword, isValidMobilePhone } = require("../global/functions");
 const { verify } = require("jsonwebtoken");
 
 function validateJWT(req, res, next) {
@@ -37,6 +37,14 @@ function validateCode(code, res, nextFunc) {
     nextFunc();
 }
 
+function validateMobilePhone(mobilePhone, res, nextFunc) {
+    if (!isValidMobilePhone(mobilePhone)) {
+        res.status(400).json(getResponseObject("Sorry, Please Send Valid Mobile Phone !!", true, {}));
+        return;
+    }
+    nextFunc();
+}
+
 function keyGeneratorForRequestsRateLimit(req) {
     const ipAddress = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
     const ipWithoutPort = ipAddress.split(',')[0];
@@ -48,5 +56,6 @@ module.exports = {
     validateEmail,
     validatePassword,
     validateCode,
+    validateMobilePhone,
     keyGeneratorForRequestsRateLimit,
 }

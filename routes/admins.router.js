@@ -4,7 +4,7 @@ const adminsController = require("../controllers/admins.controller");
 
 const { validateIsExistValueForFieldsAndDataTypes } = require("../global/functions");
 
-const { validateJWT, validateEmail, validatePassword } = require("../middlewares/global.middlewares");
+const { validateJWT, validateEmail, validatePassword, validateMobilePhone } = require("../middlewares/global.middlewares");
 
 adminsRouter.get("/login",
     async (req, res, next) => {
@@ -32,6 +32,15 @@ adminsRouter.get("/requests/:requestId/users/:userId",
     adminsController.getRequestSenderInfo
 );
 
-adminsRouter.put("/reset-password/:mobilePhone", adminsController.putResetPassword);
+adminsRouter.put("/reset-password/:mobilePhone",
+    validateJWT,
+    async (req, res, next) => {
+        validateIsExistValueForFieldsAndDataTypes([
+            { fieldName: "Mobile Phone", fieldValue: req.params.mobilePhone, dataType: "string", isRequiredValue: true },
+        ], res, next);
+    },
+    (req, res, next) => validateMobilePhone(req.params.mobilePhone, res, next),
+    adminsController.putResetPassword
+);
 
 module.exports = adminsRouter;

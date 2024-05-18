@@ -18,6 +18,10 @@ function isValidName(name) {
     return name.match(/^([\u0600-\u06FF\s]+|[a-zA-Z\s]+)$/);
 }
 
+function isValidMobilePhone(mobilePhone) {
+    return mobilePhone.match(/^(093|099|098|094|095|096)\d{7}$/);
+}
+
 function transporterObj() {
     // إنشاء ناقل بيانات لسيرفر SMTP مع إعداده 
     const transporter = createTransport({
@@ -141,6 +145,7 @@ module.exports = {
     isNumber,
     isValidPassword,
     isValidName,
+    isValidMobilePhone,
     sendCodeToUserEmail,
     sendEmail,
     validateIsExistValueForFieldsAndDataTypes,
