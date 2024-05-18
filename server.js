@@ -50,7 +50,9 @@ app.listen(PORT, async () => {
 
         app.use("/requests", require("./routes/requests.router"));
 
-        app.use("/admin", require("./routes/admins.router"));
+        app.use("/admins", require("./routes/admins.router"));
+
+        app.use("/ads", require("./routes/ads.router"));
         
         /* End Handle The Routes */
     }

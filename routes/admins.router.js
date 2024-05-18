@@ -10,10 +10,4 @@ adminsRouter.get("/requests/:requestId/users/:userId", adminsController.getReque
 
 adminsRouter.put("/reset-password/:mobilePhone", adminsController.putResetPassword);
 
-adminsRouter.post("/ads/add-ads", adminsController.postAddAds);
-
-adminsRouter.get("/ads/all-ads", adminsController.getAllAds);
-
-adminsRouter.delete("/ads/delete-ads/:adsId", adminsController.deleteAds);
-
 module.exports = adminsRouter;

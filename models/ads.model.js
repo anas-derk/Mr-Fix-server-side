@@ -2,22 +2,28 @@
 
 const { adsModel } = require("./all.models");
 
-async function addAds(content) {
+async function addNewAd(adContent) {
     try {
         // البحث في جدول الإعلانات عن إعلان له نفس المحتوى تماماً
-        const ads = await adsModel.findOne({ content });
+        const ads = await adsModel.findOne({ adContent });
         // في حالة كان يوجد إعلان مطابق فإننا نعيد رسالة خطأ
         if (ads) {
-            return "عذراً يوجد إعلان سابق بنفس المحتوى تماماً";
+            return {
+                msg: "عذراً يوجد إعلان سابق بنفس المحتوى تماماً",
+                error: true,
+                data: {}
+            }
         }
-        else {
-            // في حالة لم يكن يوجد إعلان مطابق فإننا ننشأ إعلان
-            const newAds = new adsModel({
-                content
-            });
-            // حفظ الإعلان في قاعدة البيانات
-            await newAds.save();
-            return "تهانينا ، لقد تمّ إضافة الإعلان بنجاح";
+        // في حالة لم يكن يوجد إعلان مطابق فإننا ننشأ إعلان
+        const newAds = new adsModel({
+            content: adContent
+        });
+        // حفظ الإعلان في قاعدة البيانات
+        await newAds.save();
+        return {
+            msg: "تهانينا ، لقد تمّ إضافة الإعلان بنجاح",
+            error: false,
+            data: {}
         }
     } catch(err) {
         // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
@@ -27,22 +33,28 @@ async function addAds(content) {
 
 async function getAllAds() {
     try {
-        // جلب كل بيانات الإعلانات من جدول الإعلانات بترتيب تنازلي
-        const adsList = await adsModel.find({}).sort({ adsPostDate: -1 });
-        // إعادة بيانات الإعلانات
-        return adsList;
+        // جلب كل بيانات الإعلانات من جدول الإعلانات بترتيب تنازلي وإعادتها
+        return {
+            msg: "عملية جلب كل بيانات الإعلانات تمت بنجاح !!",
+            error: false,
+            data: await adsModel.find({}).sort({ adsPostDate: -1 })
+        }
     } catch(err) {
         // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
         throw Error(err);
     }
 }
 
-async function deleteAds(adsId) {
+async function deleteAd(adId) {
     try {
         // البحث عن إعلان له نفس رقم المعرّف وحذفه
-        await adsModel.deleteOne({ _id: adsId });
+        await adsModel.deleteOne({ _id: adId });
         // إرجاع رسالة نجاح العملية
-        return "تم حذف الإعلان بنجاح";
+        return {
+            msg: "تم حذف الإعلان بنجاح",
+            error: false,
+            data: {}
+        }
     }catch(err) {
         // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
         throw Error(err);
@@ -51,7 +63,7 @@ async function deleteAds(adsId) {
 
 // تصدير الدوال المعرفة سابقاً
 module.exports = {
-    addAds,
+    addNewAd,
     getAllAds,
-    deleteAds,
+    deleteAd,
 }
