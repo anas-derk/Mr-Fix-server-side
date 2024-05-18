@@ -45,6 +45,14 @@ function validateMobilePhone(mobilePhone, res, nextFunc) {
     nextFunc();
 }
 
+function validateIsEmailOrMobilePhone(text, res, nextFunc) {
+    if (!isEmail(text) && !isValidMobilePhone(text)) {
+        res.status(400).json(getResponseObject("Sorry, Please Send Valid Email Or Mobile Phone !!", true, {}));
+        return;
+    }
+    nextFunc();
+}
+
 function keyGeneratorForRequestsRateLimit(req) {
     const ipAddress = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
     const ipWithoutPort = ipAddress.split(',')[0];
@@ -57,5 +65,6 @@ module.exports = {
     validatePassword,
     validateCode,
     validateMobilePhone,
+    validateIsEmailOrMobilePhone,
     keyGeneratorForRequestsRateLimit,
 }

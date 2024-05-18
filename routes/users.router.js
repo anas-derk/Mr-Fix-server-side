@@ -4,7 +4,7 @@ const usersController = require("../controllers/users.controller");
 
 const { validateIsExistValueForFieldsAndDataTypes } = require("../global/functions");
 
-const { validateJWT, validateEmail, validatePassword, validateMobilePhone } = require("../middlewares/global.middlewares");
+const { validateJWT, validateEmail, validatePassword, validateIsEmailOrMobilePhone } = require("../middlewares/global.middlewares");
 
 usersRouter.post("/create-new-user",
     async (req, res, next) => {
@@ -23,11 +23,11 @@ usersRouter.get("/login",
     async (req, res, next) => {
         const emailAndPassword = req.query;
         validateIsExistValueForFieldsAndDataTypes([
-            { fieldName: "Email", fieldValue: emailAndPassword.email, dataType: "string", isRequiredValue: true },
+            { fieldName: "Email Or Mobile Phone", fieldValue: emailAndPassword.text, dataType: "string", isRequiredValue: true },
             { fieldName: "Password", fieldValue: emailAndPassword.password, dataType: "string", isRequiredValue: true },
         ], res, next);
     },
-    (req, res, next) => validateEmail(req.query.email, res, next),
+    (req, res, next) => validateIsEmailOrMobilePhone(req.query.text, res, next),
     (req, res, next) => validatePassword(req.query.password, res, next),
     usersController.login
 );
