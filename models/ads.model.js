@@ -1,6 +1,6 @@
 // استيراد كائن ال mongoose + adsModel
 
-const { mongoose, adsModel } = require("./all.models");
+const { adsModel } = require("./all.models");
 
 async function addAds(content) {
     try {
