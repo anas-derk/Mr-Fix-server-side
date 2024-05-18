@@ -1,7 +1,3 @@
-// استيراد الملف الذي يحتوي رابط قاعدة البيانات
-
-const DB_URL = require("../global/DB_URL");
-
 // استيراد كائن ال mongoose + adsModel
 
 const { mongoose, adsModel } = require("./all.models");

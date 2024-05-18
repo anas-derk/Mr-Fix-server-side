@@ -4,7 +4,7 @@ const DB_URL = require("../global/DB_URL");
 
 // استيراد كائن ال mongoose + userModel
 
-const { mongoose, userModel } = require("./all.models");
+const { userModel } = require("./all.models");
 
 // استيراد مكتبة تشفير كلمة المرور
 

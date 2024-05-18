@@ -1,10 +1,6 @@
 // استيراد كائن ال mongoose + requestModel
 
-const { mongoose, requestModel } = require("./all.models");
-
-// استيراد الملف الذي يحتوي على رابط قاعدة البيانات
-
-const DB_URL = require("../global/DB_URL");
+const { requestModel } = require("./all.models");
 
 async function createNewRequest(requestInfo) {
     try {
@@ -30,12 +26,8 @@ async function getAllRequests() {
         // جلب كل بيانات الطلبات من جدول الطلبات مع ترتيبها تنازلياً
         const requests = await requestModel.find({}).sort({ requestPostDate: -1 });
         if (requests) {
-            // إذا كان يوجد طلبات بالتالي إعادتها للمستخدم وقطع الاتصال بقاعدة البيانات
-            await mongoose.disconnect();
             return requests;
         } else {
-            // في حالة لم يكن هنالك طلبات ، بالتالي إعادة رسالة خطأ للمستخدم
-            await mongoose.disconnect();
             return "عذراً لا توجد أي طلبات حالياً";
         }
     } catch (err) {

@@ -1,10 +1,6 @@
-// استيراد الملف الذي يحتوي على رابط قاعدة البيانات
-
-const DB_URL = require("../global/DB_URL");
-
 // استيراد كائن ال mongoose + adminModel
 
-const { mongoose, adminModel } = require("./all.models");
+const { adminModel } = require("./all.models");
 
 // استيراد مكتبة التشفير
 
