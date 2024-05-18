@@ -1,6 +1,6 @@
 // استيراد مكتبة ال mongoose للتعامل مع قاعدة البيانات
 
-const mongoose = require("mongoose");
+const { mongoose } = require("../server");
 
 // تعريف كائن هيكل جدول المستخدمين
 

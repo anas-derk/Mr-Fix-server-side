@@ -14,8 +14,6 @@ const bcrypt = require("bcryptjs");
 
 async function createNewUser(userInfo) {
     try {
-        // الاتصال بقاعدة البيانات
-        await mongoose.connect(DB_URL);
         let user;
         // التحقق فيما إذا كان الإيميل قد تمّ إرساله أم لا
         if (userInfo.email.length === 0) {
@@ -36,7 +34,6 @@ async function createNewUser(userInfo) {
         }
         // التحقق من أنّ المستخدم موجود بعد البحث عنه في قاعدة البيانات
         if (user) {
-            await mongoose.disconnect();
             return "عذراً لا يمكن إنشاء الحساب لأنه موجود مسبقاً !!";
         } else {
             // تشفير كلمة المرور بما أنّ المستخدم غير موجود مسبقاً
@@ -54,49 +51,39 @@ async function createNewUser(userInfo) {
             });
             // حفظ المستخدم الجديد في جدول المستخدمين
             await newUser.save();
-            // قطع الاتصال بقاعدة البيانات
-            await mongoose.disconnect();
             return "تم بنجاح إنشاء الحساب";
         }
     }
     catch (err) {
-        // في حالة حدثت مشكلة أثناء العملية عندها نقطع الاتصال بقاعدة البيانات ونرمي استثناءً بالخطأ
-        await mongoose.disconnect();
-        throw Error("عذراً حدث خطأ ، الرجاء إعادة العملية");
+        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
+        throw Error(err);
     }
 }
 
 async function isUserAccountExist(email) {
     try {
-        // الاتصال بقاعدة البيانات
-        await mongoose.connect(DB_URL);
         // التحقق من أن المستخدم موجود في جدول المستخدمين
         const user = await mongoose.models.user.findOne({ email });
         if (user) {
             // في حالة كان موجوداً ، نقطع الاتصال بقاعدة البيانات ونعيد بيانات هذا المستخدم المطلوبة فقط
-            await mongoose.disconnect();
             return { userId: user._id, userType: "user" };
         }
         // في حالة لم يكن موجوداً في جدول المستخدمين عندها نبحث في جدول المسؤولين
         const admin = await mongoose.models.admin.findOne({ email });
         if (admin) {
             // في حالة كان موجوداً ، نقطع الاتصال بقاعدة البيانات ونعيد بيانات هذا المستخدم المطلوبة فقط
-            await mongoose.disconnect();
             return { userId: admin._id, userType: "admin" };
         }
         // في حالة لم يكن موجوداً في جدول المسؤولين عندها نعيد false للدلالة أنّ المستخدم غير موجود نهائياً
         return false;
     } catch (err) {
-        // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
-        await mongoose.disconnect();
-        throw Error("عذراً يوجد مشكلة ، الرجاء إعادة المحاولة !!");
+        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
+        throw Error(err);
     }
 }
 
 async function login(text, password) {
     try {
-        // الاتصال بقاعدة البيانات
-        await mongoose.connect(DB_URL);
         // التحقق من كون الحساب موجود في قاعدة البيانات أم لا عن طريق البحث عن إيميل مطابق أو رقم هاتف مطابق
         const user = await userModel.findOne({
             $or: [
@@ -112,53 +99,42 @@ async function login(text, password) {
         if (user) {
             // التحقق من كلمة السر صحيحة أم لا لأنّ المستخدم موجود
             const isTruePassword = await bcrypt.compare(password, user.password);
-            // قطع الاتصال بقاعدة البيانات
-            await mongoose.disconnect();
             // في حالة كلمة السر صحيحة نعيد معرّف المستخدم أو نعيد رسالة خطأ في حالة لم تكن صحيحة
             if (isTruePassword) return user._id;
             return "عذراً ، الإيميل أو رقم الهاتف خاطئ أو كلمة السر خاطئة";
         }
         else {
-            // في حالة لم يكن هنالك مستخدم لديه نفس الإيميل أو كلمة السر فإننا نقطع الاتصال بقاعدة البيانات ونعيد رسالة خطأ
-            await mongoose.disconnect();
+            // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
             return "عذراً ، الإيميل أو رقم الهاتف خاطئ أو كلمة السر خاطئة";
         }
     }
     catch (err) {
-        // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
-        await mongoose.disconnect();
-        throw Error("عذراً يوجد مشكلة ، الرجاء إعادة المحاولة !!");
+        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
+        throw Error(err);
     }
 }
 
 async function getUserInfo(userId) {
     try {
-        // الاتصال بقاعدة البيانات
-        await mongoose.connect(DB_URL);
         // التحقق من كون المستخدم موجود في قاعدة البيانات عن طريق معرّفه
         const user = await userModel.findById(userId);
         // قطع الاتصال بقاعدة البيانات وفي حالة كان موجوداً نعيد بيانات وإلا نعيد رسالة خطأ
-        await mongoose.disconnect();
         if (user) return user;
         return "عذراً ، المستخدم غير موجود";
     } catch (err) {
-        // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
-        await mongoose.disconnect();
-        throw Error("عذراً يوجد مشكلة ، الرجاء إعادة المحاولة !!");
+        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
+        throw Error(err);
     }
 }
 
 async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobilePhone) {
     try {
-        // الاتصال بقاعدة البيانات
-        await mongoose.connect(DB_URL);
         let user;
         // التحقق من كون قد تمّ إرسال تفس رقم الموبايل وليس نفس الإيميل من أجل عدم البحث في جدول المستخدمين بواسطة رقم الهاتف لأننا لا نريد تغيير رقم الهاتف الافتراضي
         if (isSameOfEmail === "no" && isSameOfMobilePhone == "yes") {
             // التحقق من أن المستخدم موجود عن طريق البحث في جدول المستخدمين عن إيميل مطابق
             user = await userModel.findOne({ email: newUserData.email });
             if (user) {
-                await mongoose.disconnect();
                 return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!";
             } else {
                 // في حالة لم يكن هنالك إيميل مطابق ، نتأكد من كون كلمة السر قد تمّ إرسالها من أجل تغييرهاأم لا
@@ -187,8 +163,6 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                         address: newUserData.address,
                     });
                 }
-                // قطع الاتصال بقاعدة البيانات
-                await mongoose.disconnect();
             }
             // التحقق من أنّ الإيميل نفسه ورقم الموبايل ليس نفسه
         } else if (isSameOfEmail == "yes" && isSameOfMobilePhone == "no") {
@@ -223,8 +197,6 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                         address: newUserData.address,
                     });
                 }
-                // قطع الاتصال بقاعدة البيانات لانتهاء العملية
-                await mongoose.disconnect();
             }
         // التحقق من أنّ الإيميل ورقم الهاتف ليس نفسه
         } else if (isSameOfEmail == "no" && isSameOfMobilePhone == "no") {
@@ -240,7 +212,6 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                 ]
             });
             if (user) {
-                await mongoose.disconnect();
                 return "عذراً لا يمكن تعديل بيانات الملف الشخصي لأن البريد الإلكتروني أو رقم الموبايل موجود مسبقاً !!";
             } else {
                 // التحقق من أنّ كلمة السر قد تمّ إرسالها من أجل تغييرها مع بيانات المستخدم
@@ -270,8 +241,6 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                         address: newUserData.address,
                     });
                 }
-                // قطع الاتصال بقاعدة البيانات لانتهاء العملية
-                await mongoose.disconnect();
             }
             // في حالة لم تكن من ضمن الاحتمالات السابقة أي لم يتم تعديل لا اإيميل ولا رقم الهاتف
         } else {
@@ -298,21 +267,16 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                     address: newUserData.address,
                 });
             }
-            // قطع الاتصال بقاعدة البيانات
-            await mongoose.disconnect();
         }
     }
     catch (err) {
-        // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
-        await mongoose.disconnect();
-        throw Error("عذراً يوجد مشكلة ، الرجاء إعادة المحاولة !!");
+        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
+        throw Error(err);
     }
 }
 
 async function resetUserPassword(userId, userType, newPassword) {
     try {
-        // الاتصال بقاعدة البيانات
-        await mongoose.connect(DB_URL);
         // تشفير كلمة السر
         const newEncryptedPassword = await bcrypt.hash(newPassword, 10);
         // التحقق من كون نوع المستخدم هو مستخدم عادي
@@ -325,9 +289,8 @@ async function resetUserPassword(userId, userType, newPassword) {
         await mongoose.models.admin.updateOne({ _id: userId }, { password: newEncryptedPassword });
         return "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!";
     } catch (err) {
-        // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
-        await mongoose.disconnect();
-        throw Error("عذراً يوجد مشكلة ، الرجاء إعادة المحاولة !!");
+        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
+        throw Error(err);
     }
 }
 

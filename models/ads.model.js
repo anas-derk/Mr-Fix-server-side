@@ -8,13 +8,10 @@ const { mongoose, adsModel } = require("./all.models");
 
 async function addAds(content) {
     try {
-        // الاتصال بقاعدة البيانات
-        await mongoose.connect(DB_URL);
         // البحث في جدول الإعلانات عن إعلان له نفس المحتوى تماماً
         const ads = await adsModel.findOne({ content });
         // في حالة كان يوجد إعلان مطابق فإننا نعيد رسالة خطأ
         if (ads) {
-            mongoose.disconnect();
             return "عذراً يوجد إعلان سابق بنفس المحتوى تماماً";
         }
         else {
@@ -24,44 +21,34 @@ async function addAds(content) {
             });
             // حفظ الإعلان في قاعدة البيانات
             await newAds.save();
-            // في حالة نجاح العملية فأننا نقطع الاتصال بقاعدة البيانات ونعيد رسالة نجاح
-            await mongoose.disconnect();
             return "تهانينا ، لقد تمّ إضافة الإعلان بنجاح";
         }
     } catch(err) {
-        // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
-        await awaitmongoose.disconnect();
+        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
         throw Error(err);
     }
 }
 
 async function getAllAds() {
     try {
-        // الاتصال بقاعدة البيانات
-        await mongoose.connect(DB_URL);
         // جلب كل بيانات الإعلانات من جدول الإعلانات بترتيب تنازلي
         const adsList = await adsModel.find({}).sort({ adsPostDate: -1 });
-        // قطع الاتصال بقاعدة البيانات وإعادة بيانات الإعلانات
-        await mongoose.disconnect();
+        // إعادة بيانات الإعلانات
         return adsList;
     } catch(err) {
-        // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
-        await mongoose.disconnect();
+        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
         throw Error(err);
     }
 }
 
 async function deleteAds(adsId) {
     try {
-        // الاتصال بقاعدة البيانات
-        await mongoose.connect(DB_URL);
         // البحث عن إعلان له نفس رقم المعرّف وحذفه
         await adsModel.deleteOne({ _id: adsId });
         // إرجاع رسالة نجاح العملية
         return "تم حذف الإعلان بنجاح";
     }catch(err) {
-        // في حالة حدث خطأ أثناء العملية ، نقطع الاتصال ونرمي استثناء بالخطأ
-        mongoose.disconnect();
+        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
         throw Error(err);
     }
 }

@@ -4,45 +4,78 @@ const express = require("express");
 
 const app = express();
 
-/* End Import And Create Express App */
-
-/* Start Config The Server */
-
-const cors = require("cors"),
-    bodyParser = require("body-parser");
-
-app.use(cors());
-
-app.use(bodyParser.json());
-
-/* Start direct the browser to statics files path */
-
 const path = require("path");
 
-app.use("/assets", express.static(path.join(__dirname, "assets")));
+const cors = require("cors");
 
-/* End direct the browser to statics files path */
+const bodyParser = require("body-parser");
 
-/* End Config The Server */
+const mongoose = require("mongoose");
+
+require("dotenv").config();
+
+/* End Import And Create Express App */
 
 /* Start Running The Server */
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, () => console.log(`The Server Is Running On: http://localhost:${PORT}`));
+app.listen(PORT, async () => {
+
+    console.log(`The Server Is Running On: http://localhost:${PORT}`);
+
+    try {
+
+        await mongoose.connect(process.env.DB_URL);
+
+        /* Start Config The Server */
+
+        app.use(cors({
+            origin: "*"
+        }));
+
+        app.use(bodyParser.json());
+
+        /* End Config The Server */
+
+        /* Start direct the browser to statics files path */
+
+        app.use("/assets", express.static(path.join(__dirname, "assets")));
+
+        /* End direct the browser to statics files path */
+
+        /* Start Handle The Routes */
+
+        app.use("/users", require("./routes/users.router"));
+
+        app.use("/requests", require("./routes/requests.router"));
+
+        app.use("/admin", require("./routes/admin.router"));
+        
+        /* End Handle The Routes */
+    }
+    catch (err) {
+        console.log(err);
+    }
+
+});
 
 /* End Running The Server */
 
-/* Start Handle The Routes */
+/* Start Handling Events */
 
-const   usersRouter = require("./routes/users.router"),
-        requestsRouter = require("./routes/requests.router"),
-        adminRouter = require("./routes/admin.router");
+mongoose.connection.on("connected", () => console.log("connected"));
+mongoose.connection.on("disconnected", () => console.log("disconnected"));
+mongoose.connection.on("reconnected", () => console.log("reconnected"));
+mongoose.connection.on("disconnecting", () => console.log("disconnecting"));
+mongoose.connection.on("close", () => console.log("close"));
 
-app.use("/users", usersRouter);
+process.on("SIGINT", async () => {
+    await mongoose.connection.close();
+});
 
-app.use("/requests", requestsRouter);
+/* End Handling Events */
 
-app.use("/admin", adminRouter);
-
-/* End Handle The Routes */
+module.exports = {
+    mongoose,
+}
