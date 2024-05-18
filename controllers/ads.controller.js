@@ -4,7 +4,7 @@ const adsOPerationsManagmentFunctions = require("../models/ads.model");
 
 async function postAddAd(req, res) {
     try{
-        res.json(await adsOPerationsManagmentFunctions.addNewAd(req.body.content));
+        res.json(await adsOPerationsManagmentFunctions.addNewAd(req.data._id, req.body.content));
     }
     catch(err) {
         res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
@@ -22,7 +22,7 @@ async function getAllAds(req, res) {
 
 async function deleteAd(req, res) {
     try{
-        res.json(await adsOPerationsManagmentFunctions.deleteAd(req.params.adId));
+        res.json(await adsOPerationsManagmentFunctions.deleteAd(req.data._id, req.params.adId));
     }
     catch(err) {
         res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));

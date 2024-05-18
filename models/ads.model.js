@@ -1,28 +1,36 @@
 // استيراد كائن ال mongoose + adsModel
 
-const { adsModel } = require("./all.models");
+const { adsModel, adminModel } = require("./all.models");
 
-async function addNewAd(adContent) {
+async function addNewAd(adminId, adContent) {
     try {
-        // البحث في جدول الإعلانات عن إعلان له نفس المحتوى تماماً
-        const ads = await adsModel.findOne({ adContent });
-        // في حالة كان يوجد إعلان مطابق فإننا نعيد رسالة خطأ
-        if (ads) {
+        const admin = await adminModel.findById(adminId);
+        if (admin) {
+            // البحث في جدول الإعلانات عن إعلان له نفس المحتوى تماماً
+            const ads = await adsModel.findOne({ adContent });
+            // في حالة كان يوجد إعلان مطابق فإننا نعيد رسالة خطأ
+            if (ads) {
+                return {
+                    msg: "عذراً يوجد إعلان سابق بنفس المحتوى تماماً",
+                    error: true,
+                    data: {}
+                }
+            }
+            // في حالة لم يكن يوجد إعلان مطابق فإننا ننشأ إعلان
+            const newAds = new adsModel({
+                content: adContent
+            });
+            // حفظ الإعلان في قاعدة البيانات
+            await newAds.save();
             return {
-                msg: "عذراً يوجد إعلان سابق بنفس المحتوى تماماً",
-                error: true,
+                msg: "تهانينا ، لقد تمّ إضافة الإعلان بنجاح",
+                error: false,
                 data: {}
             }
         }
-        // في حالة لم يكن يوجد إعلان مطابق فإننا ننشأ إعلان
-        const newAds = new adsModel({
-            content: adContent
-        });
-        // حفظ الإعلان في قاعدة البيانات
-        await newAds.save();
         return {
-            msg: "تهانينا ، لقد تمّ إضافة الإعلان بنجاح",
-            error: false,
+            msg: "عذراً هذا المسؤول غير موجود !!",
+            error: true,
             data: {}
         }
     } catch(err) {
@@ -45,14 +53,22 @@ async function getAllAds() {
     }
 }
 
-async function deleteAd(adId) {
+async function deleteAd(adminId, adId) {
     try {
-        // البحث عن إعلان له نفس رقم المعرّف وحذفه
-        await adsModel.deleteOne({ _id: adId });
-        // إرجاع رسالة نجاح العملية
+        const admin = await adminModel.findById(adminId);
+        if (admin) {
+            // البحث عن إعلان له نفس رقم المعرّف وحذفه
+            await adsModel.deleteOne({ _id: adId });
+            // إرجاع رسالة نجاح العملية
+            return {
+                msg: "تم حذف الإعلان بنجاح",
+                error: false,
+                data: {}
+            }
+        }
         return {
-            msg: "تم حذف الإعلان بنجاح",
-            error: false,
+            msg: "عذراً هذا المسؤول غير موجود !!",
+            error: true,
             data: {}
         }
     }catch(err) {
