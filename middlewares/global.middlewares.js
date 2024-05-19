@@ -54,7 +54,7 @@ function validateIsEmailOrMobilePhone(text, res, nextFunc) {
 }
 
 function validateGender(gender, res, nextFunc) {
-    if (gender !== "male" || gender !== "female") {
+    if (gender !== "male" && gender !== "female") {
         res.status(400).json(getResponseObject("Sorry, Please Send Valid Gender !!", true, {}));
         return;
     }
