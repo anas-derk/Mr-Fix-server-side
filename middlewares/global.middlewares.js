@@ -53,6 +53,22 @@ function validateIsEmailOrMobilePhone(text, res, nextFunc) {
     nextFunc();
 }
 
+function validateGender(gender, res, nextFunc) {
+    if (gender !== "male" || gender !== "female") {
+        res.status(400).json(getResponseObject("Sorry, Please Send Valid Gender !!", true, {}));
+        return;
+    }
+    nextFunc();
+}
+
+function validateCity(city, res, nextFunc) {
+    if (city !== "damascus" || gender !== "rif-damascus") {
+        res.status(400).json(getResponseObject("Sorry, Please Send Valid City !!", true, {}));
+        return;
+    }
+    nextFunc();
+}
+
 function keyGeneratorForRequestsRateLimit(req) {
     const ipAddress = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
     const ipWithoutPort = ipAddress.split(',')[0];
@@ -66,5 +82,7 @@ module.exports = {
     validateCode,
     validateMobilePhone,
     validateIsEmailOrMobilePhone,
+    validateGender,
+    validateCity,
     keyGeneratorForRequestsRateLimit,
 }

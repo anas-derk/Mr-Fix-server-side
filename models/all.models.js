@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
     gender: {
         type: String,
         required: true,
+        enum: [
+            "male",
+            "female"
+        ],
     },
     birthday: {
         type: String,
@@ -29,6 +33,10 @@ const userSchema = new mongoose.Schema({
     city: {
         type: String,
         required: true,
+        enum: [
+            "damascus",
+            "rif-damascus"
+        ],
     },
     address: {
         type: String,

@@ -6,8 +6,6 @@ const { sign } = require("jsonwebtoken");
 
 async function createNewUser(req, res) {
     try{
-        // جلب الداتا المطلوبة المرسلة مع الطلب
-        const userData = req.body;
         // إنشاء حساب
         res.json(await usersOPerationsManagmentFunctions.createNewUser(req.body));
     }
