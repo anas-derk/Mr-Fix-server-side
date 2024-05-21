@@ -170,7 +170,7 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                 // في حالة لم يكن هنالك إيميل مطابق ، نتأكد من كون كلمة السر قد تمّ إرسالها من أجل تغييرهاأم لا
                 if (newUserData.password !== "") {
                     // تشفير كلمة السر
-                    const newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                    const newEncryptedPassword = await hash(newUserData.password, 10);
                     // تعديل البيانات المرسلة فقط أي بدون رقم الهاتف
                     await userModel.updateOne({ _id: userId }, {
                         firstAndLastName: newUserData.firstAndLastName,
@@ -218,7 +218,7 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                 // التحقق من أنّ السر غير مرسلة كي لا يتم تعديلها مع بيانات المستخدم
                 if (newUserData.password !== "") {
                     // تشفير كلمة السر
-                    const newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                    const newEncryptedPassword = await hash(newUserData.password, 10);
                     // تعديل بيانات المستخدم بدون الإيميل
                     await userModel.updateOne({ _id: userId }, {
                         firstAndLastName: newUserData.firstAndLastName,
@@ -274,7 +274,7 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
                 // التحقق من أنّ كلمة السر قد تمّ إرسالها من أجل تغييرها مع بيانات المستخدم
                 if (newUserData.password !== "") {
                     // تشفير كلمة السر
-                    const newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                    const newEncryptedPassword = await hash(newUserData.password, 10);
                     // تعديل بيانات المستخدم كاملة
                     await userModel.updateOne({ _id: userId }, {
                         firstAndLastName: newUserData.firstAndLastName,
@@ -314,7 +314,7 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
             // التحقق من أنّه قد تمّ إرسال كلمة السر لتعديلها
             if (newUserData.password !== "") {
                 // تشفير كلمة السر
-                const newEncryptedPassword = await bcrypt.hash(newUserData.password, 10);
+                const newEncryptedPassword = await hash(newUserData.password, 10);
                 // تعديل بيانات السمتخدم بدون الإيميل أو رقم الموبايل
                 await userModel.updateOne({ _id: userId }, {
                     firstAndLastName: newUserData.firstAndLastName,
