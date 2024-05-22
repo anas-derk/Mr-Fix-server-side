@@ -1,4 +1,4 @@
-const { getResponseObject } = require("../global/functions");
+const { getResponseObject, sendCodeToUserEmail } = require("../global/functions");
 
 const usersOPerationsManagmentFunctions = require("../models/users.model");
 
@@ -92,14 +92,20 @@ async function putProfile(req, res) {
 async function putResetPassword(req, res) {
     try{
         const resetingData = req.query;
-        let result = await isAccountVerificationCodeValid(resetingData.email, resetingData.code, "to reset password");
-        if (!result.error) {
-            res.json(await usersOPerationsManagmentFunctions.resetUserPassword(resetingData.email, resetingData.newPassword, resetingData.userType));
+        const isUserAccountExist = await usersOPerationsManagmentFunctions.isUserAccountExist(resetingData.email);
+        if (!isUserAccountExist.error) {
+            const result = await isAccountVerificationCodeValid(resetingData.email, resetingData.code, "to reset password");
+            if (!result.error) {
+                res.json(await usersOPerationsManagmentFunctions.resetUserPassword(resetingData.email, resetingData.newPassword, isUserAccountExist.data.userType));
+                return;
+            }
+            res.json(result);
             return;
         }
-        res.json(result);
+        res.json(isUserAccountExist);
     }
     catch(err) {
+        console.log(err)
         res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
     }
 }

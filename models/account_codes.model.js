@@ -49,19 +49,19 @@ async function isAccountVerificationCodeValid(email, code, typeOfUse) {
         if (accountVerificationCode) {
             if (accountVerificationCode.code === code) {
                 return {
-                    msg: "This Code For This Email Is Valid !!",
+                    msg: "عذراً هذا الرمز غير صحيح !!",
                     error: false,
                     data: {},
                 }
             }
             return {
-                msg: "This Code For This Email Is Not Valid !!",
+                msg: "عذراً هذا الرمز غير صحيح !!",
                 error: true,
                 data: {},
             }
         }
         return {
-            msg: "Sorry, This User Is Not Found !!",
+            msg: "عذراً هذا المستخدم غير موجود !!",
             error: true,
             data: {},
         }

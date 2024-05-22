@@ -25,7 +25,10 @@ function isValidMobilePhone(mobilePhone) {
 function transporterObj() {
     // إنشاء ناقل بيانات لسيرفر SMTP مع إعداده 
     const transporter = createTransport({
-        service: "gmail",
+        host: process.env.SMTP_HOST,
+        port: 465,
+        secure: true,
+        requireTLS: true,
         auth: {
             user: process.env.BUSSINESS_EMAIL,
             pass: process.env.BUSSINESS_PASSWORD,
@@ -38,7 +41,7 @@ function sendCodeToUserEmail(email) {
     // استدعاء مكتبة توليد شيفرة خاصة بإعادة ضبط كلمة السر
     const generator = new CodeGenerator();
     // توليد الكود المراد إرساله إلى الإيميل وفق نمط محدد
-    const generatedCode = generator.generateCodes("###**#");
+    const generatedCode = generator.generateCodes("###**#")[0];
     // إعداد الرسالة قبل إرسالها
     const mailConfigurations = {
         from: process.env.BUSSINESS_EMAIL,
@@ -52,7 +55,11 @@ function sendCodeToUserEmail(email) {
             // في حالة حدث خطأ في الإرسال أرجع خطأ
             if (error) reject(error);
             // في حالة لم يحدث خطأ أعد الكود المولد
-            resolve(generatedCode);
+            resolve({
+                msg: "عملية إرسال كود التحقق تمت بنجاح !!",
+                error: false,
+                data: generatedCode,
+            });
         });
     });
 }
