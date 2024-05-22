@@ -79,10 +79,10 @@ function sendEmail(data) {
     transporterObj().sendMail(mailConfigurations, function (error, info) {
         if (error) {
             // إرجاع الخطأ في حالة عدم نجاح عملية الإرسال
-            console.log(err);
+            return error;
         }
         else {
-            console.log("تم إرسال الإيميل بنجاح");
+            return true;
         };
     });
 }

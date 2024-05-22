@@ -31,6 +31,7 @@ usersRouter.post("/create-new-user",
     (req, res, next) => validateMobilePhone(req.body.mobilePhone, res, next),
     (req, res, next) => validatePassword(req.body.password, res, next),
     (req, res, next) => validateGender(req.body.gender, res, next),
+    (req, res, next) => validateCity(req.body.city, res, next),
     (req, res, next) => {
         if (req.body.email) {
             validateEmail(req.body.email, res, next);

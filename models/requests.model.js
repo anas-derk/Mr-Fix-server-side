@@ -2,14 +2,17 @@
 
 const { requestModel, userModel } = require("./all.models");
 
-async function createNewRequest(requestInfo) {
+async function createNewRequest(userId, requestInfo) {
     try {
         // إنشاء طلب جديد وحفظه في قاعدة البيانات ضمن جدول الطلبات
-        const newRequest = new requestModel(requestInfo);
+        const newRequest = new requestModel({
+            ...requestInfo,
+            userId
+        });
         // الاحتفاظ بمعلومات الطلب كاملة للاستفادة منها لاحقاً في إرسالها كرسالة على إيميل المسؤول
         const fullRequestInfo = await newRequest.save();
         // البحث في جدول المستخدمين عن المستخدم الذي أرسل الطلب
-        const requestSenderInfo = await userModel.findById(requestInfo.userId);
+        const requestSenderInfo = await userModel.findById(userId);
         // تجميع بيانات الطلب + بيانات مرسل الطلب ضمن مصفوفة للاستفادة منها لاحقاً كما ذكرت
         return {
             msg: "عملية إنشاء طلب جديد تمت بنجاح !!",

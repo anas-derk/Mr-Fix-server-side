@@ -13,6 +13,23 @@ const storage = multer.diskStorage({
 
 // create upload object for uploading the files after configure it
 
-const upload = multer({ storage: storage });
+const upload = multer({
+    storage,
+    fileFilter: (req, file, cb) => {
+        if (!file) {
+            req.uploadError = "Sorry, No File Uploaded, Please Upload The File";
+            return cb(null, false);
+        }
+        if (
+            file.mimetype !== "image/jpeg" &&
+            file.mimetype !== "image/png" &&
+            file.mimetype !== "image/webp"
+        ){
+            req.uploadError = "Sorry, Invalid File Mimetype, Only JPEG, PNG And Webp files are allowed !!";
+            return cb(null, false);
+        }
+        cb(null, true);
+    }
+});
 
 module.exports = upload;

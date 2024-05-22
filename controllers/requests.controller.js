@@ -6,26 +6,29 @@ const { sendEmail } = require("../global/functions");
 
 async function postServiceRequest(req, res) {
     try{
+        const uploadError = req.uploadError;
+        if (uploadError) {
+            res.status(400).json(getResponseObject(uploadError, true, {}));
+            return;
+        }
         // تعريف مصفوفة صور الطلب 
         let requestImages = [];
         // عمل حلقة تكرارية لإضافة كل مسارات الصور التي تمّ رفعها إليها
         for(let file of req.files) {
             requestImages.push(file.path);
         }
-        // تجميع بيانات الطلب بحيث يتم وضع بيانات الطلب مع مسارات الملفات ضمن كائن واحد مع مراعاة أن يكون ليس هنالك صور قد تمّ رفعها
-        const requestInfo = {
+        // إنشاء طلب جديد
+        const result = await requestsOPerationsManagmentFunctions.createNewRequest(req.data._id, {
             ...Object.assign({}, req.body),
             files: requestImages,
-        };
-        // إنشاء طلب جديد
-        const result = await requestsOPerationsManagmentFunctions.createNewRequest(requestInfo);
+        });
         res.json({
             msg: "تمّ طلب الخدمة بنجاح ، سوف يتم التواصل معك قريباً جداً",
             error: false,
             data: {},
         });
         // في حالة نجاح عملية إنشاء الطلب عندها نرسل إيميل للمسؤول
-        sendEmail(result);
+        sendEmail(result.data);
     }
     catch(err) {
         res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
