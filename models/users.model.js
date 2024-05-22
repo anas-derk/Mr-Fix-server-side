@@ -70,7 +70,7 @@ async function isUserAccountExist(email) {
         if (user) {
             // في حالة كان موجوداً ، نقطع الاتصال بقاعدة البيانات ونعيد بيانات هذا المستخدم المطلوبة فقط
             return {
-                msg: "Check If User Account Is Exist Process Has Been Successfully !!",
+                msg: "عملية  التحقق من وجود الحساب تمت بنجاح !!",
                 error: false,
                 data: {
                     userId: user._id,
@@ -83,7 +83,7 @@ async function isUserAccountExist(email) {
         if (admin) {
             // في حالة كان موجوداً ، نقطع الاتصال بقاعدة البيانات ونعيد بيانات هذا المستخدم المطلوبة فقط
             return {
-                msg: "Check If User Account Is Exist Process Has Been Successfully !!",
+                msg: "عملية  التحقق من وجود الحساب تمت بنجاح !!",
                 error: false,
                 data: {
                     userId: admin._id,
@@ -93,7 +93,7 @@ async function isUserAccountExist(email) {
         }
         // في حالة لم يكن موجوداً في جدول المسؤولين عندها نعيد false للدلالة أنّ المستخدم غير موجود نهائياً
         return {
-            msg: "Sorry, This User Is Not Exist !!",
+            msg: "عذراً ، هذا الحساب غير موجود !!",
             error: true,
             data: {}
         };

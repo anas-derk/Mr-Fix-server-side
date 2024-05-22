@@ -25,14 +25,6 @@ async function getForgetPassword(req, res) {
         const email = req.query.email;
         let result = await usersOPerationsManagmentFunctions.isUserAccountExist(email);
         if (!result.error) {
-            if (!result.data.isVerified) {
-                res.json({
-                    msg: "Sorry, The Email For This User Is Not Verified !!",
-                    error: true,
-                    data: result.data,
-                });
-                return;
-            }
             result = await isBlockingFromReceiveTheCodeAndReceiveBlockingExpirationDate(email);
             if (result.error) {
                 res.json(result);

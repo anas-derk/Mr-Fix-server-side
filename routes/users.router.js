@@ -56,7 +56,7 @@ usersRouter.get("/login",
 usersRouter.get("/user-info", validateJWT, usersController.getUserInfo);
 
 usersRouter.get("/forget-password",
-    (req, res, next) => validateEmail(req.body.email, res, next),
+    (req, res, next) => validateEmail(req.query.email, res, next),
     usersController.getForgetPassword,
 );
 
