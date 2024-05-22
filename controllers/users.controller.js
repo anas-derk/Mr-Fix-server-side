@@ -4,6 +4,12 @@ const usersOPerationsManagmentFunctions = require("../models/users.model");
 
 const { sign } = require("jsonwebtoken");
 
+const {
+    isBlockingFromReceiveTheCodeAndReceiveBlockingExpirationDate,
+    addNewAccountVerificationCode,
+    isAccountVerificationCodeValid
+} = require("../models/account_codes.model");
+
 async function createNewUser(req, res) {
     try{
         // إنشاء حساب
@@ -14,48 +20,34 @@ async function createNewUser(req, res) {
     }
 }
 
-function getForgetPassword(req, res) {
-    // جلب الإيميل المرسل
-    const email = req.query.email;
-    // التحقق إن تمّ إرساله
-    if (email) {
-        // التحقق من أنه إيميل صالح
-        const { isEmail } = require("../global/functions");
-        if (isEmail(email)) {
-            const { isUserAccountExist } = require("../models/users.model");
-            // في حالة كان الإيميل صالح نتحقق من كون المستخدم موجود
-            isUserAccountExist(email).then((userIdAndType) => {
-                // التحقق من أن النتيجة المعادة هي رقم معرّف المستخدم ونوع المستخدم 
-                if (userIdAndType) {
-                    // إرسال كود إلى الإيميل
-                    const { sendCodeToUserEmail } = require("../global/functions");
-                    sendCodeToUserEmail(email)
-                        .then(generatedCode => {
-                            // إرجاع البيانات المطلوبة لعملية إعادة ضبط كلمة السر
-                            res.json(
-                                {
-                                    userIdAndType,
-                                    code: generatedCode[0],
-                                }
-                            );
-                        })
-                        // في حالة حدث خطأ نعيد الخطأ للمستخدم
-                        .catch(err => res.json(err));
-                } else {
-                    // في حالة كان البريد الالكتروني غير موجود نرسل رسالة خطأ
-                    res.json("عذراً البريد الالكتروني الذي أدخلته غير موجود !!");
-                }
-            })
-                .catch((err) => res.json(err));
+async function getForgetPassword(req, res) {
+    try{
+        const email = req.query.email;
+        let result = await usersOPerationsManagmentFunctions.isUserAccountExist(email);
+        if (!result.error) {
+            if (!result.data.isVerified) {
+                res.json({
+                    msg: "Sorry, The Email For This User Is Not Verified !!",
+                    error: true,
+                    data: result.data,
+                });
+                return;
+            }
+            result = await isBlockingFromReceiveTheCodeAndReceiveBlockingExpirationDate(email);
+            if (result.error) {
+                res.json(result);
+                return;
+            }
+            result = await sendCodeToUserEmail(email);
+            if (!result.error) {
+                res.json(await addNewAccountVerificationCode(email, result.data, "to reset password"));
+                return;
+            }
         }
-        else {
-            // في حالة كان ا لإيميل غير صالح نرسل رسالة خطأ كاستجابة للمستخدم
-            res.status(500).json("عذراً ، الإيميل الذي أدخلته غير صالح !!!");
-        }
+        res.json(result);
     }
-    else {
-        // في حالة لم يتم إرسال الإيميل من قبل المستخدم نعيد رسالة خطأ للسمستخدم 
-        res.status(500).json("الرجاء إرسال الإيميل المطلوب لاستعادة كلمة السر الخاصة به");
+    catch(err) {
+        res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
     }
 }
 
@@ -107,9 +99,13 @@ async function putProfile(req, res) {
 
 async function putResetPassword(req, res) {
     try{
-        const userTypeAndNewPassword = req.query;
-        res.json(await usersOPerationsManagmentFunctions.resetUserPassword(req.params.userId, userTypeAndNewPassword.userType, userTypeAndNewPassword.newPassword));
-
+        const resetingData = req.query;
+        let result = await isAccountVerificationCodeValid(resetingData.email, resetingData.code, "to reset password");
+        if (!result.error) {
+            res.json(await usersOPerationsManagmentFunctions.resetUserPassword(resetingData.email, resetingData.newPassword, resetingData.userType));
+            return;
+        }
+        res.json(result);
     }
     catch(err) {
         res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));

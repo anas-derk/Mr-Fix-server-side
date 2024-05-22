@@ -69,16 +69,34 @@ async function isUserAccountExist(email) {
         const user = await userModel.findOne({ email });
         if (user) {
             // في حالة كان موجوداً ، نقطع الاتصال بقاعدة البيانات ونعيد بيانات هذا المستخدم المطلوبة فقط
-            return { userId: user._id, userType: "user" };
+            return {
+                msg: "Check If User Account Is Exist Process Has Been Successfully !!",
+                error: false,
+                data: {
+                    userId: user._id,
+                    userType: "user"
+                }
+            }
         }
         // في حالة لم يكن موجوداً في جدول المستخدمين عندها نبحث في جدول المسؤولين
         const admin = await userModel.findOne({ email });
         if (admin) {
             // في حالة كان موجوداً ، نقطع الاتصال بقاعدة البيانات ونعيد بيانات هذا المستخدم المطلوبة فقط
-            return { userId: admin._id, userType: "admin" };
+            return {
+                msg: "Check If User Account Is Exist Process Has Been Successfully !!",
+                error: false,
+                data: {
+                    userId: admin._id,
+                    userType: "admin"
+                }
+            }
         }
         // في حالة لم يكن موجوداً في جدول المسؤولين عندها نعيد false للدلالة أنّ المستخدم غير موجود نهائياً
-        return false;
+        return {
+            msg: "Sorry, This User Is Not Exist !!",
+            error: true,
+            data: {}
+        };
     } catch (err) {
         // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
         throw Error(err);
@@ -352,14 +370,14 @@ async function updateProfile(userId, newUserData, isSameOfEmail, isSameOfMobileP
     }
 }
 
-async function resetUserPassword(userId, userType, newPassword) {
+async function resetUserPassword(email, newPassword, userType) {
     try {
         // تشفير كلمة السر
         const newEncryptedPassword = await hash(newPassword, 10);
         // التحقق من كون نوع المستخدم هو مستخدم عادي
         if (userType == "user") {
             // إعادة تعيين كلمة السر من خلال تعديل بيانات المستخدم في جدول المستخدمين ومن ثمّ إعادة رسالة نجاح
-            await userModel.updateOne({ _id: userId }, { password: newEncryptedPassword });
+            await userModel.updateOne({ email }, { password: newEncryptedPassword });
             return {
                 msg: "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!",
                 error: false,
@@ -367,7 +385,7 @@ async function resetUserPassword(userId, userType, newPassword) {
             }
         }
         // إعادة تعيين كلمة السر من خلال تعديل بيانات المستخدم في جدول المسؤولين في حالة لم يكن مستخدم عادي ومن ثمّ إعادة رسالة نجاح
-        await adminModel.updateOne({ _id: userId }, { password: newEncryptedPassword });
+        await adminModel.updateOne({ email }, { password: newEncryptedPassword });
         return {
             msg: "لقد تمّت عملية إعادة تعيين كلمة المرور الخاصة بك بنجاح !!",
             error: false,

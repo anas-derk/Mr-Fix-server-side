@@ -55,9 +55,23 @@ usersRouter.get("/login",
 
 usersRouter.get("/user-info", validateJWT, usersController.getUserInfo);
 
-usersRouter.get("/forget-password", usersController.getForgetPassword);
+usersRouter.get("/forget-password",
+    (req, res, next) => validateEmail(req.body.email, res, next),
+    usersController.getForgetPassword,
+);
 
-usersRouter.put("/reset-password/:userId", usersController.putResetPassword);
+usersRouter.put("/reset-password",
+    async (req, res, next) => {
+        validateIsExistValueForFieldsAndDataTypes([
+            { fieldName: "Email", fieldValue: req.query.email, dataType: "string", isRequiredValue: true },
+            { fieldName: "Code", fieldValue: req.query.code, dataType: "string", isRequiredValue: true },
+            { fieldName: "New Password", fieldValue: req.query.newPassword, dataType: "string", isRequiredValue: true },
+        ], res, next);
+    },
+    (req, res, next) => validateEmail(req.query.email, res, next),
+    (req, res, next) => validatePassword(req.query.newPassword, res, next),
+    usersController.putResetPassword
+);
 
 usersRouter.put("/update-user-info", validateJWT, usersController.putProfile);
 

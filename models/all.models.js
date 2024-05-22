@@ -156,9 +156,49 @@ const adsSchema = new mongoose.Schema({
 
 const adsModel = mongoose.model("ad", adsSchema);
 
+// Create Account Verification Codes Schema
+
+const accountVerificationCodesShema = mongoose.Schema({
+    email: {
+        type: String,
+        required: true,
+    },
+    code: {
+        type: String,
+        required: true,
+    },
+    createdDate: Date,
+    expirationDate: {
+        type: Date,
+        required: true,
+    },
+    requestTimeCount: {
+        type: Number,
+        default: 1,
+    },
+    isBlockingFromReceiveTheCode: {
+        type: Boolean,
+        default: false,
+    },
+    receiveBlockingExpirationDate: Date,
+    typeOfUse: {
+        type: String,
+        default: "to activate account",
+        enum: [
+            "to activate account",
+            "to reset password",
+        ],
+    }
+});
+
+// Create Account Verification Codes Model From Account Codes Schema
+
+const accountVerificationCodesModel = mongoose.model("account_verification_codes", accountVerificationCodesShema);
+
 module.exports = {
     userModel,
     requestModel,
     adminModel,
     adsModel,
+    accountVerificationCodesModel
 }
