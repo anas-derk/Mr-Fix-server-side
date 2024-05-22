@@ -6,7 +6,9 @@ const { validateJWT } = require("../middlewares/global.middlewares");
 
 adsRouter.post("/add-ad", validateJWT, adsController.postAddAd);
 
-adsRouter.get("/all-ads", adsController.getAllAds);
+adsRouter.get("/ads-count", adsController.getAdsCount);
+
+adsRouter.get("/all-ads-inside-the-page", adsController.getAllAdsInsideThePage);
 
 adsRouter.delete("/:adId", validateJWT, adsController.deleteAd);
 

@@ -39,16 +39,26 @@ async function addNewAd(adminId, adContent) {
     }
 }
 
-async function getAllAds() {
+async function getAdsCount() {
     try {
-        // جلب كل بيانات الإعلانات من جدول الإعلانات بترتيب تنازلي وإعادتها
         return {
-            msg: "عملية جلب كل بيانات الإعلانات تمت بنجاح !!",
+            msg: "عملية جلب عدد الإعلانات تمت بنجاح !!",
             error: false,
-            data: await adsModel.find({}).sort({ adsPostDate: -1 })
+            data: await adsModel.countDocuments({}),
         }
-    } catch(err) {
-        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
+    } catch (err) {
+        throw Error(err);
+    }
+}
+
+async function getAllAdsInsideThePage(pageNumber, pageSize) {
+    try {
+        return {
+            msg: `عملية جلب كل الإعلانات في الصفحة : ${pageNumber} تمت بنجاح !!`,
+            error: false,
+            data: await adsModel.find(filters).skip((pageNumber - 1) * pageSize).limit(pageSize).sort({ adsPostDate: -1 }),
+        }
+    } catch (err) {
         throw Error(err);
     }
 }
@@ -80,6 +90,7 @@ async function deleteAd(adminId, adId) {
 // تصدير الدوال المعرفة سابقاً
 module.exports = {
     addNewAd,
-    getAllAds,
+    getAdsCount,
+    getAllAdsInsideThePage,
     deleteAd,
 }

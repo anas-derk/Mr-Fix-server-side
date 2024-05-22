@@ -11,9 +11,19 @@ async function postAddAd(req, res) {
     }
 }
 
-async function getAllAds(req, res) {
+async function getAdsCount(req, res) {
+    try {
+        res.json(await adsOPerationsManagmentFunctions.getAdsCount());
+    }
+    catch (err) {
+        res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
+    }
+}
+
+async function getAllAdsInsideThePage(req, res) {
     try{
-        res.json(await adsOPerationsManagmentFunctions.getAllAds());
+        const filters = req.query;
+        res.json(await adsOPerationsManagmentFunctions.getAllAdsInsideThePage(filters.pageNumber, filters.pageSize));
     }
     catch(err) {
         res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
@@ -31,6 +41,7 @@ async function deleteAd(req, res) {
 
 module.exports = {
     postAddAd,
-    getAllAds,
+    getAdsCount,
+    getAllAdsInsideThePage,
     deleteAd
 }
