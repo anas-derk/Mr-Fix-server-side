@@ -26,16 +26,26 @@ async function createNewRequest(userId, requestInfo) {
     }
 }
 
-async function getAllRequests() {
+async function getRequestsCount() {
     try {
-        // جلب كل بيانات الطلبات من جدول الطلبات مع ترتيبها تنازلياً
         return {
-            msg: "عملية جلب بيانات كل الطلبات تمت بنجاخ !!",
+            msg: "عملية جلب عدد الطلبات تمت بنجاح !!",
             error: false,
-            data: await requestModel.find({}).sort({ requestPostDate: -1 })
+            data: await requestModel.countDocuments({}),
         }
     } catch (err) {
-        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
+        throw Error(err);
+    }
+}
+
+async function getAllRequestsInsideThePage(pageNumber, pageSize) {
+    try {
+        return {
+            msg: `عملية جلب كل الطلبات في الصفحة : ${pageNumber} تمت بنجاح !!`,
+            error: false,
+            data: await requestModel.find({}).skip((pageNumber - 1) * pageSize).limit(pageSize).sort({ adsPostDate: -1 }),
+        }
+    } catch (err) {
         throw Error(err);
     }
 }
@@ -43,5 +53,6 @@ async function getAllRequests() {
 // تصدير الدوال المعرّفة سابقاً وكائن الطلب
 module.exports = {
     createNewRequest,
-    getAllRequests,
+    getRequestsCount,
+    getAllRequestsInsideThePage
 }

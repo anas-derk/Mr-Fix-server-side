@@ -35,9 +35,19 @@ async function postServiceRequest(req, res) {
     }
 }
 
-async function getAllRequests(req, res) {
+async function getRequestsCount(req, res) {
+    try {
+        res.json(await requestsOPerationsManagmentFunctions.getRequestsCount());
+    }
+    catch (err) {
+        res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
+    }
+}
+
+async function getAllRequestsInsideThePage(req, res) {
     try{
-        res.json(await requestsOPerationsManagmentFunctions.getAllRequests());
+        const filters = req.query;
+        res.json(await requestsOPerationsManagmentFunctions.getAllRequestsInsideThePage(filters.pageNumber, filters.pageSize));
     }
     catch(err) {
         res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
@@ -47,5 +57,6 @@ async function getAllRequests(req, res) {
 // تصدير الدوال المعرّفة
 module.exports = {
     postServiceRequest,
-    getAllRequests,
+    getRequestsCount,
+    getAllRequestsInsideThePage
 }

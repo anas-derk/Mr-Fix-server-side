@@ -30,6 +30,18 @@ requestsRouter.post("/create-new-request",
     requestsController.postServiceRequest
 );
 
-requestsRouter.get("/all-requests", validateJWT, requestsController.getAllRequests);
+requestsRouter.get("/requests-count", validateJWT, requestsController.getRequestsCount);
+
+requestsRouter.get("/all-requests-inside-the-page",
+    validateJWT,
+    async (req, res, next) => {
+        const filters = req.query;
+        validateIsExistValueForFieldsAndDataTypes([
+            { fieldName: "page Number", fieldValue: Number(filters.pageNumber), dataType: "number", isRequiredValue: true },
+            { fieldName: "page Size", fieldValue: Number(filters.pageSize), dataType: "number", isRequiredValue: true },
+        ], res, next);
+    },
+    requestsController.getAllRequestsInsideThePage
+);
 
 module.exports = requestsRouter;
