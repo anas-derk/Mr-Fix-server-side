@@ -1,3 +1,5 @@
+const { Types } = require("mongoose");
+
 const { createTransport } = require("nodemailer");
 
 const CodeGenerator = require('node-code-generator');
