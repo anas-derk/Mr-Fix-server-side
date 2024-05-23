@@ -35,17 +35,6 @@ async function getAdminInfo(req, res) {
     }
 }
 
-async function getRequestSenderInfo(req, res) {
-    try{
-        // جلب معلومات الطلب
-        const requestAndUserIds = req.params;
-        res.json(await adminsOPerationsManagmentFunctions.getRequestSenderInfo(req.data._id, requestAndUserIds.requestId, requestAndUserIds.userId))
-    }
-    catch(err){
-        res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
-    }
-}
-
 async function putResetPassword(req, res) {
     try{
         // إعادة ضبط طلب السر من خلال المسؤول لتصبح نفس رقم الهاتف المُسجل
@@ -61,5 +50,4 @@ module.exports = {
     getAdminLogin,
     getAdminInfo,
     putResetPassword,
-    getRequestSenderInfo,
 }

@@ -54,9 +54,21 @@ async function getAllRequestsInsideThePage(req, res) {
     }
 }
 
+async function getRequestSenderInfo(req, res) {
+    try{
+        // جلب معلومات الطلب
+        const requestAndUserIds = req.query;
+        res.json(await requestsOPerationsManagmentFunctions.getRequestSenderInfo(req.data._id, requestAndUserIds.requestId, requestAndUserIds.userId))
+    }
+    catch(err){
+        res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
+    }
+}
+
 // تصدير الدوال المعرّفة
 module.exports = {
     postServiceRequest,
     getRequestsCount,
-    getAllRequestsInsideThePage
+    getAllRequestsInsideThePage,
+    getRequestSenderInfo
 }

@@ -44,4 +44,16 @@ requestsRouter.get("/all-requests-inside-the-page",
     requestsController.getAllRequestsInsideThePage
 );
 
+requestsRouter.get("/request-sender-info",
+    validateJWT,
+    async (req, res, next) => {
+        const requestAndUserIds = req.query;
+        validateIsExistValueForFieldsAndDataTypes([
+            { fieldName: "Request Id", fieldValue: requestAndUserIds.requestId, dataType: "ObjectId", isRequiredValue: true },
+            { fieldName: "User Id", fieldValue: requestAndUserIds.userId, dataType: "ObjectId", isRequiredValue: true },
+        ], res, next);
+    },
+    requestsController.getRequestSenderInfo
+);
+
 module.exports = requestsRouter;

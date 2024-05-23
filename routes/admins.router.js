@@ -21,17 +21,6 @@ adminsRouter.get("/login",
 
 adminsRouter.get("/user-info", validateJWT, adminsController.getAdminInfo);
 
-adminsRouter.get("/requests/:requestId/users/:userId",
-    async (req, res, next) => {
-        const requestAndUserIds = req.params;
-        validateIsExistValueForFieldsAndDataTypes([
-            { fieldName: "Request Id", fieldValue: requestAndUserIds.requestId, dataType: "ObjectId", isRequiredValue: true },
-            { fieldName: "User Id", fieldValue: requestAndUserIds.userId, dataType: "ObjectId", isRequiredValue: true },
-        ], res, next);
-    },
-    adminsController.getRequestSenderInfo
-);
-
 adminsRouter.put("/reset-password/:mobilePhone",
     validateJWT,
     async (req, res, next) => {

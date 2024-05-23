@@ -67,38 +67,6 @@ async function getAdminInfo(adminId) {
     }
 }
 
-async function getRequestSenderInfo(adminId, requestId, userId) {
-    try {
-        const admin = await adminModel.findById(adminId);
-        if (admin) {
-            // التحقق من أنّ الطلب موجود عن طريق البحث في جدول الطلبات عن رقم معرّف موجود مسبقاً
-            const request = await requestModel.findById(requestId);
-            // في حالة لم يكن هنالك طلب سابق عندها نرجع رسالة خطأ
-            if (!request) {
-                return {
-                    msg: "عذراً ، لا يوجد طلب بهذا المعرّف !!",
-                    error: true,
-                    data: {}
-                }
-            }
-            // في حالة كان يوجد طلب بهذا المعرّف فأننا نبحث عن مستخدم في جدول المستخدمين له معرّف مطابق للرقم المُرسل
-            return {
-                msg: "عملية جلب معلومات مرسل الطلب تمت بنجاح !!",
-                error: false,
-                data: await userModel.findById(userId)
-            }
-        }
-        return {
-            msg: "عذراً ، حساب المسؤول غير موجود",
-            error: true,
-            data: {}
-        }
-    } catch (err) {
-        // في حالة حدث خطأ أثناء العملية ، نرمي استثناء بالخطأ
-        throw Error(err);
-    }
-}
-
 async function resetPasswordForUserFromAdmin(adminId, mobilePhone) {
     try {
         const admin = await adminModel.findById(adminId);
@@ -142,5 +110,4 @@ module.exports = {
     adminLogin,
     getAdminInfo,
     resetPasswordForUserFromAdmin,
-    getRequestSenderInfo,
 }
