@@ -26,6 +26,7 @@ async function getAllAdsInsideThePage(req, res) {
         res.json(await adsOPerationsManagmentFunctions.getAllAdsInsideThePage(filters.pageNumber, filters.pageSize));
     }
     catch(err) {
+        console.log(err)
         res.status(500).json(getResponseObject("Internal Server Error !!", true, {}));
     }
 }

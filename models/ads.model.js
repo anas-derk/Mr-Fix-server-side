@@ -7,9 +7,9 @@ async function addNewAd(adminId, adContent) {
         const admin = await adminModel.findById(adminId);
         if (admin) {
             // البحث في جدول الإعلانات عن إعلان له نفس المحتوى تماماً
-            const ads = await adsModel.findOne({ adContent });
+            const ad = await adsModel.findOne({ content: adContent });
             // في حالة كان يوجد إعلان مطابق فإننا نعيد رسالة خطأ
-            if (ads) {
+            if (ad) {
                 return {
                     msg: "عذراً يوجد إعلان سابق بنفس المحتوى تماماً",
                     error: true,
@@ -17,11 +17,11 @@ async function addNewAd(adminId, adContent) {
                 }
             }
             // في حالة لم يكن يوجد إعلان مطابق فإننا ننشأ إعلان
-            const newAds = new adsModel({
+            const newAd = new adsModel({
                 content: adContent
             });
             // حفظ الإعلان في قاعدة البيانات
-            await newAds.save();
+            await newAd.save();
             return {
                 msg: "تهانينا ، لقد تمّ إضافة الإعلان بنجاح",
                 error: false,
@@ -56,7 +56,7 @@ async function getAllAdsInsideThePage(pageNumber, pageSize) {
         return {
             msg: `عملية جلب كل الإعلانات في الصفحة : ${pageNumber} تمت بنجاح !!`,
             error: false,
-            data: await adsModel.find(filters).skip((pageNumber - 1) * pageSize).limit(pageSize).sort({ adsPostDate: -1 }),
+            data: await adsModel.find({}).skip((pageNumber - 1) * pageSize).limit(pageSize).sort({ adsPostDate: -1 }),
         }
     } catch (err) {
         throw Error(err);
