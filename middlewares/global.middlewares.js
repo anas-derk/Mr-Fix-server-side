@@ -62,7 +62,7 @@ function validateGender(gender, res, nextFunc) {
 }
 
 function validateCity(city, res, nextFunc) {
-    if (city !== "damascus" || gender !== "rif-damascus") {
+    if (city !== "damascus" && city !== "rif-damascus") {
         res.status(400).json(getResponseObject("Sorry, Please Send Valid City !!", true, {}));
         return;
     }
