@@ -1,14 +1,20 @@
 const mongoose = require("mongoose");
 
 require("dotenv").config({
-    path: "../.env",
+    path: "./.env",
 });
 
 // create Admin User Schema For Admin User Model
 
-const admin_user_schema = mongoose.Schema({
-    email: String,
-    password: String,
+const adminSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        required: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
     userType: {
         type: String,
         default: "admin",
@@ -17,7 +23,7 @@ const admin_user_schema = mongoose.Schema({
 
 // create Admin User Model In Database
 
-const admin_user_model = mongoose.model("admin", admin_user_schema);
+const adminModel= mongoose.model("admin", adminSchema);
 
 // require bcryptjs module for password encrypting
 
@@ -26,17 +32,15 @@ const { hash } = require("bcryptjs");
 async function create_admin_user_account() {
     try {
         await mongoose.connect(process.env.DB_URL);
-        let user = await admin_user_model.findOne({ email: userInfo.email });
+        const user = await adminModel.findOne({ email: process.env.MAIN_ADMIN_EMAIL });
         if (user) {
             await mongoose.disconnect();
             return "Sorry, Can't Insert Admin Data To Database Because it is Exist !!!";
         } else {
-            let password = userInfo.password;
-            let encrypted_password = await hash(password, 10);
-            userInfo.password = encrypted_password;
-            let new_admin_user = new admin_user_model({
+            const encrypted_password = await hash(process.env.MAIN_ADMIN_PASSWORD, 10);
+            const new_admin_user = new adminModel({
                 email: process.env.MAIN_ADMIN_EMAIL,
-                password: process.env.MAIN_ADMIN_PASSWORD,
+                password: encrypted_password,
             });
             await new_admin_user.save();
             await mongoose.disconnect();
