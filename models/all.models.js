@@ -156,7 +156,7 @@ const adsSchema = new mongoose.Schema({
 
 const adsModel = mongoose.model("ad", adsSchema);
 
-// Create Account Verification Codes Schema
+// إنشاء كائن هيكل جدول رموز التحقق للمستخدمين
 
 const accountVerificationCodesShema = mongoose.Schema({
     email: {
@@ -191,7 +191,7 @@ const accountVerificationCodesShema = mongoose.Schema({
     }
 });
 
-// Create Account Verification Codes Model From Account Codes Schema
+// إنشاء كائن  جدول رموز التحقق للمستخدمين
 
 const accountVerificationCodesModel = mongoose.model("account_verification_codes", accountVerificationCodesShema);
 

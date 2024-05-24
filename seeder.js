@@ -23,7 +23,7 @@ const adminSchema = new mongoose.Schema({
 
 // create Admin User Model In Database
 
-const adminModel= mongoose.model("admin", adminSchema);
+const adminModel = mongoose.model("admin", adminSchema);
 
 // require bcryptjs module for password encrypting
 
