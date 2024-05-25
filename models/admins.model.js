@@ -1,6 +1,6 @@
 // استيراد كائن ال adminModel
 
-const { adminModel, requestModel, userModel } = require("./all.models");
+const { adminModel, userModel } = require("./all.models");
 
 // استيراد مكتبة التشفير
 
