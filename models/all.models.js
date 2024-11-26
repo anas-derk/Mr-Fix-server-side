@@ -102,7 +102,7 @@ const requestSchema = new mongoose.Schema({
     },
     requestPostDate: {
         type: Date,
-        default: Date.now(),
+        default: Date.now,
     },
     userId: {
         type: String,
@@ -148,7 +148,7 @@ const adsSchema = new mongoose.Schema({
     },
     adsPostDate: {
         type: Date,
-        default: Date.now(),
+        default: Date.now,
     },
 });
 
